@@ -62,10 +62,12 @@ export function InventoryPagination({
   const pageItems = pageSizeOption === "all" ? [] : buildPageItems(page, totalPages)
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border bg-card px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-muted-foreground">{rangeLabel(page, pageSizeOption, total)}</p>
+    <div className="flex min-w-0 flex-col gap-3 overflow-hidden rounded-lg border bg-card px-3 py-3 sm:px-4 sm:flex-row sm:items-center sm:justify-between">
+      <p className="truncate text-sm text-muted-foreground">
+        {rangeLabel(page, pageSizeOption, total)}
+      </p>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground whitespace-nowrap">Mostrar</span>
           <Select
@@ -78,7 +80,7 @@ export function InventoryPagination({
               onPageSizeChange(Number(value) as 20 | 30 | 50 | 100)
             }}
           >
-            <SelectTrigger className="w-[110px]">
+            <SelectTrigger className="w-[110px] shrink-0">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -91,11 +93,12 @@ export function InventoryPagination({
           </Select>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1">
+        <div className="flex min-w-0 items-center justify-between gap-2 sm:justify-start">
           <Button
             type="button"
             variant="outline"
             size="sm"
+            className="shrink-0"
             disabled={page <= 1 || pageSizeOption === "all"}
             onClick={() => onPageChange(page - 1)}
           >
@@ -105,35 +108,43 @@ export function InventoryPagination({
           {pageSizeOption === "all" ? (
             <span className="px-2 text-sm text-muted-foreground">Todo</span>
           ) : (
-            pageItems.map((item, index) =>
-              item === "ellipsis" ? (
-                <span
-                  key={`ellipsis-${index}`}
-                  className="px-2 text-sm text-muted-foreground"
-                  aria-hidden
-                >
-                  …
-                </span>
-              ) : (
-                <Button
-                  key={item}
-                  type="button"
-                  size="sm"
-                  variant={item === page ? "default" : "outline"}
-                  className="min-w-9"
-                  aria-current={item === page ? "page" : undefined}
-                  onClick={() => onPageChange(item)}
-                >
-                  {item}
-                </Button>
-              ),
-            )
+            <>
+              <span className="px-1 text-sm tabular-nums text-muted-foreground sm:hidden">
+                {page}/{totalPages}
+              </span>
+              <div className="hidden flex-wrap items-center gap-1 sm:flex">
+                {pageItems.map((item, index) =>
+                  item === "ellipsis" ? (
+                    <span
+                      key={`ellipsis-${index}`}
+                      className="px-2 text-sm text-muted-foreground"
+                      aria-hidden
+                    >
+                      …
+                    </span>
+                  ) : (
+                    <Button
+                      key={item}
+                      type="button"
+                      size="sm"
+                      variant={item === page ? "default" : "outline"}
+                      className="min-w-9"
+                      aria-current={item === page ? "page" : undefined}
+                      onClick={() => onPageChange(item)}
+                    >
+                      {item}
+                    </Button>
+                  ),
+                )}
+              </div>
+            </>
           )}
 
           <Button
             type="button"
             variant="outline"
             size="sm"
+            className="shrink-0"
             disabled={page >= totalPages || pageSizeOption === "all"}
             onClick={() => onPageChange(page + 1)}
           >

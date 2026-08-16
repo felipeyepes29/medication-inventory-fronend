@@ -1,4 +1,7 @@
+import { useMemo, useState } from "react"
+import { ChevronDown, SlidersHorizontal } from "lucide-react"
 import type { ExpirationStatus } from "@/domain/entities/medication"
+import { cn } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
 import { Input } from "@/shared/ui/input"
 import {
@@ -30,67 +33,106 @@ export function InventoryFilters({
   onExpirationStatusChange,
   onClear,
 }: InventoryFiltersProps) {
-  return (
-    <aside className="flex h-fit flex-col gap-5 rounded-xl border bg-card/90 p-5 shadow-sm backdrop-blur">
-      <div>
-        <h2 className="text-base font-semibold text-foreground">Filtros</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Refina el inventario por nombre, marca o vencimiento.
-        </p>
-      </div>
+  const activeCount = useMemo(() => {
+    let count = 0
+    if (q.trim()) count += 1
+    if (brand !== "all") count += 1
+    if (expirationStatus !== "all") count += 1
+    return count
+  }, [brand, expirationStatus, q])
 
-      <div className="space-y-4">
-        <div className="space-y-1.5">
+  const [open, setOpen] = useState(activeCount > 0)
+
+  return (
+    <aside className="min-w-0 overflow-hidden rounded-xl border bg-card/90 shadow-sm backdrop-blur">
+      <button
+        type="button"
+        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left lg:cursor-default lg:px-5 lg:pb-0 lg:pt-5"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-expanded={open}
+      >
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="h-4 w-4 shrink-0 text-primary" />
+            <h2 className="text-base font-semibold text-foreground">Filtros</h2>
+            {activeCount > 0 ? (
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                {activeCount}
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-1 hidden text-sm text-muted-foreground lg:block">
+            Refina por nombre, marca o vencimiento.
+          </p>
+        </div>
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 shrink-0 text-muted-foreground transition-transform lg:hidden",
+            open && "rotate-180",
+          )}
+        />
+      </button>
+
+      <div
+        className={cn(
+          "grid gap-4 px-4 pb-4 pt-3 lg:grid lg:px-5 lg:pb-5 lg:pt-4",
+          open ? "grid" : "hidden lg:grid",
+        )}
+      >
+        <div className="min-w-0 space-y-1.5">
           <label className="text-sm font-medium text-muted-foreground" htmlFor="search">
             Buscar
           </label>
           <Input
             id="search"
-            placeholder="Nombre, marca o concentración..."
+            className="min-w-0"
+            placeholder="Nombre, marca..."
             value={q}
             onChange={(event) => onQChange(event.target.value)}
           />
         </div>
 
-        <div className="space-y-1.5">
-          <span className="text-sm font-medium text-muted-foreground">Marca</span>
-          <Select value={brand} onValueChange={onBrandChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Todas las marcas" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas</SelectItem>
-              {brands.map((item) => (
-                <SelectItem key={item} value={item}>
-                  {item}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
+          <div className="min-w-0 space-y-1.5">
+            <span className="text-sm font-medium text-muted-foreground">Marca</span>
+            <Select value={brand} onValueChange={onBrandChange}>
+              <SelectTrigger className="min-w-0">
+                <SelectValue placeholder="Todas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                {brands.map((item) => (
+                  <SelectItem key={item} value={item}>
+                    {item}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="min-w-0 space-y-1.5">
+            <span className="text-sm font-medium text-muted-foreground">Vencimiento</span>
+            <Select
+              value={expirationStatus}
+              onValueChange={(value) => onExpirationStatusChange(value as ExpirationStatus)}
+            >
+              <SelectTrigger className="min-w-0">
+                <SelectValue placeholder="Estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="expiring_soon">Próximos 90 días</SelectItem>
+                <SelectItem value="expired">Vencidos</SelectItem>
+                <SelectItem value="no_date">Sin fecha</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        <div className="space-y-1.5">
-          <span className="text-sm font-medium text-muted-foreground">Vencimiento</span>
-          <Select
-            value={expirationStatus}
-            onValueChange={(value) => onExpirationStatusChange(value as ExpirationStatus)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Estado" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="expiring_soon">Próximos 90 días</SelectItem>
-              <SelectItem value="expired">Vencidos</SelectItem>
-              <SelectItem value="no_date">Sin fecha</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <Button type="button" variant="outline" className="w-full" onClick={onClear}>
+          Limpiar filtros
+        </Button>
       </div>
-
-      <Button type="button" variant="outline" className="w-full" onClick={onClear}>
-        Limpiar filtros
-      </Button>
     </aside>
   )
 }

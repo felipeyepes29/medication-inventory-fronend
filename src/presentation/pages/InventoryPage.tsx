@@ -58,14 +58,14 @@ export function InventoryPage({ onOpenBrands }: InventoryPageProps) {
   }
 
   return (
-    <main className="min-h-screen" style={{ backgroundImage: "var(--page-gradient)" }}>
-      <div className="mx-auto flex w-full max-w-[1680px] flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="space-y-2">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+    <main className="min-h-screen overflow-x-hidden" style={{ backgroundImage: "var(--page-gradient)" }}>
+      <div className="mx-auto flex w-full max-w-[1680px] min-w-0 flex-col gap-5 px-4 py-6 sm:gap-6 sm:px-6 sm:py-8 lg:px-8">
+        <header className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="min-w-0 space-y-2">
+            <p className="text-sm font-semibold uppercase tracking-[0.12em] text-primary sm:tracking-[0.18em]">
               Medicine Inventory
             </p>
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
               Inventario de medicamentos
             </h1>
             <p className="text-muted-foreground">
@@ -73,7 +73,7 @@ export function InventoryPage({ onOpenBrands }: InventoryPageProps) {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             <ThemeToggle />
             <Button type="button" variant="outline" onClick={onOpenBrands}>
               Marcas
@@ -100,7 +100,7 @@ export function InventoryPage({ onOpenBrands }: InventoryPageProps) {
           </div>
         </header>
 
-        <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)]">
+        <div className="grid min-w-0 gap-4 sm:gap-6 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)]">
           <InventoryFilters
             q={q}
             onQChange={setQ}
@@ -112,7 +112,7 @@ export function InventoryPage({ onOpenBrands }: InventoryPageProps) {
             onClear={clearFilters}
           />
 
-          <section className="flex min-w-0 flex-col gap-4">
+          <section className="flex min-w-0 flex-col gap-4 overflow-x-hidden">
             {error ? (
               <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/60 dark:text-red-300">
                 {error}
