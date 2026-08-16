@@ -10,6 +10,7 @@ import { StockMovementDialog } from "@/presentation/components/StockMovementDial
 import { StockMovementHistoryDialog } from "@/presentation/components/StockMovementHistoryDialog"
 import { ThemeToggle } from "@/presentation/components/ThemeToggle"
 import { useMedications } from "@/presentation/hooks/useMedications"
+import { clearAccessToken } from "@/infrastructure/auth/token-storage"
 import { Button } from "@/shared/ui/button"
 
 export function InventoryPage() {
@@ -70,6 +71,16 @@ export function InventoryPage() {
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                clearAccessToken()
+                window.location.reload()
+              }}
+            >
+              Salir
+            </Button>
             <Button
               type="button"
               onClick={() => {
