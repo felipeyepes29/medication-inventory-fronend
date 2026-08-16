@@ -104,7 +104,7 @@ export function InventoryPage({ onOpenBrands, onOpenHistory }: InventoryPageProp
           </div>
         </header>
 
-        <div className="grid min-w-0 gap-4 sm:gap-6 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)]">
+        <div className="grid min-w-0 items-start gap-4 sm:gap-6 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)]">
           <InventoryFilters
             q={q}
             onQChange={setQ}

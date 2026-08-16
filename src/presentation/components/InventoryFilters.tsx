@@ -44,7 +44,7 @@ export function InventoryFilters({
   const [open, setOpen] = useState(activeCount > 0)
 
   return (
-    <aside className="min-w-0 overflow-hidden rounded-xl border bg-card/90 shadow-sm backdrop-blur">
+    <aside className="h-fit min-w-0 self-start overflow-hidden rounded-xl border bg-card/90 shadow-sm backdrop-blur">
       <button
         type="button"
         className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left lg:cursor-default lg:px-5 lg:pb-0 lg:pt-5"
