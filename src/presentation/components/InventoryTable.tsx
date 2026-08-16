@@ -76,9 +76,9 @@ function MedicationActions({
       <DropdownMenuTrigger asChild>
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="icon"
-          className="h-8 w-8 shrink-0"
+          className="h-8 w-8 shrink-0 rounded-full border border-border"
           aria-label={`Acciones de ${item.name}`}
         >
           <Settings2 className="h-4 w-4" />
@@ -194,7 +194,7 @@ export function InventoryTable({
               <TableHead>Marca</TableHead>
               <TableHead>Caja</TableHead>
               <TableHead>Vencimiento</TableHead>
-              <TableHead className="w-14 text-right">Acciones</TableHead>
+              <TableHead className="w-16 text-center">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -207,8 +207,10 @@ export function InventoryTable({
                 <TableCell>{item.brand}</TableCell>
                 <TableCell className="text-muted-foreground">{item.box ?? "—"}</TableCell>
                 <TableCell>{expirationBadge(item.expirationDate)}</TableCell>
-                <TableCell className="p-2 text-right">
-                  <MedicationActions item={item} {...actions} />
+                <TableCell className="p-2">
+                  <div className="flex justify-center">
+                    <MedicationActions item={item} {...actions} />
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
