@@ -13,4 +13,5 @@ export interface MedicationRepository {
   update(id: number, input: MedicationInput): Promise<Medication>
   delete(id: number): Promise<void>
   listBrands(): Promise<string[]>
+  listBoxes(): Promise<string[]>
 }

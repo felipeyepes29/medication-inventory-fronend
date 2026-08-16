@@ -72,6 +72,11 @@ export class HttpMedicationRepository implements MedicationRepository {
     return data.position
   }
 
+  async listBoxes(): Promise<string[]> {
+    const data = await apiClient<{ boxes: string[] }>("/api/medications/boxes")
+    return data.boxes
+  }
+
   async create(input: MedicationInput): Promise<Medication> {
     const data = await apiClient<MedicationApi>("/api/medications", {
       method: "POST",

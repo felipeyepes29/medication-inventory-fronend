@@ -3,6 +3,7 @@ import { createCreateMedicationUseCase } from "@/application/use-cases/create-me
 import { createDeleteBrandUseCase } from "@/application/use-cases/delete-brand"
 import { createDeleteMedicationUseCase } from "@/application/use-cases/delete-medication"
 import { createGetNextPositionUseCase } from "@/application/use-cases/get-next-position"
+import { createListBoxesUseCase } from "@/application/use-cases/list-boxes"
 import { createListBrandsUseCase } from "@/application/use-cases/list-brands"
 import { createListBrandsCatalogUseCase } from "@/application/use-cases/list-brands-catalog"
 import { createListMedicationsUseCase } from "@/application/use-cases/list-medications"
@@ -24,6 +25,7 @@ export const medicationUseCases = {
   update: createUpdateMedicationUseCase(medicationRepository),
   delete: createDeleteMedicationUseCase(medicationRepository),
   listBrands: createListBrandsUseCase(medicationRepository),
+  listBoxes: createListBoxesUseCase(medicationRepository),
   getNextPosition: createGetNextPositionUseCase(medicationRepository),
 }
 

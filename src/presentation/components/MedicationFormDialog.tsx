@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react"
-import { brandUseCases } from "@/application/composition"
+import { brandUseCases, medicationUseCases } from "@/application/composition"
 import type { Medication, MedicationInput } from "@/domain/entities/medication"
+import { AutocompleteInput } from "@/shared/ui/autocomplete-input"
 import { Button } from "@/shared/ui/button"
 import {
   Dialog,
@@ -73,6 +74,7 @@ export function MedicationFormDialog({
 }: MedicationFormDialogProps) {
   const [form, setForm] = useState<FormState>(emptyForm)
   const [brandOptions, setBrandOptions] = useState<string[]>([])
+  const [boxOptions, setBoxOptions] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -84,12 +86,19 @@ export function MedicationFormDialog({
     const loadForm = async () => {
       setError(null)
       try {
-        const brands = await brandUseCases.list()
+        const [brands, boxes] = await Promise.all([
+          brandUseCases.list(),
+          medicationUseCases.listBoxes(),
+        ])
         if (!cancelled) {
           setBrandOptions(brands.map((item) => item.name))
+          setBoxOptions(boxes)
         }
       } catch {
-        if (!cancelled) setBrandOptions([])
+        if (!cancelled) {
+          setBrandOptions([])
+          setBoxOptions([])
+        }
       }
 
       if (medication) {
@@ -210,13 +219,16 @@ export function MedicationFormDialog({
 
           <div className="grid gap-2">
             <Label htmlFor="box">Caja</Label>
-            <Input
+            <AutocompleteInput
               id="box"
               placeholder="Ej. caja grande 1"
+              options={boxOptions}
               value={form.box}
-              onChange={(event) => setForm((prev) => ({ ...prev, box: event.target.value }))}
+              onChange={(value) => setForm((prev) => ({ ...prev, box: value }))}
             />
-            <p className="text-xs text-muted-foreground">Opcional</p>
+            <p className="text-xs text-muted-foreground">
+              Opcional. Escribe o elige una caja ya usada.
+            </p>
           </div>
 
           <div className="grid gap-2">
