@@ -15,9 +15,10 @@ import { Button } from "@/shared/ui/button"
 
 interface InventoryPageProps {
   onOpenBrands: () => void
+  onOpenHistory: () => void
 }
 
-export function InventoryPage({ onOpenBrands }: InventoryPageProps) {
+export function InventoryPage({ onOpenBrands, onOpenHistory }: InventoryPageProps) {
   const {
     items,
     brands,
@@ -75,6 +76,9 @@ export function InventoryPage({ onOpenBrands }: InventoryPageProps) {
 
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             <ThemeToggle />
+            <Button type="button" variant="outline" onClick={onOpenHistory}>
+              Historial
+            </Button>
             <Button type="button" variant="outline" onClick={onOpenBrands}>
               Marcas
             </Button>

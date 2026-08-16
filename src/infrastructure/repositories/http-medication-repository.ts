@@ -76,7 +76,7 @@ export class HttpMedicationRepository implements MedicationRepository {
     const data = await apiClient<MedicationApi>("/api/medications", {
       method: "POST",
       body: JSON.stringify({
-        position: input.position,
+        position: input.position ?? null,
         name: input.name,
         quantity: input.quantity,
         concentration: input.concentration,

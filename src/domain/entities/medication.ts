@@ -29,7 +29,7 @@ export interface PaginatedMedications {
 }
 
 export interface MedicationInput {
-  position: number
+  position?: number | null
   name: string
   quantity: number
   concentration: string

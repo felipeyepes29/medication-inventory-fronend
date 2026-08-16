@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react"
-import { brandUseCases, medicationUseCases } from "@/application/composition"
+import { brandUseCases } from "@/application/composition"
 import type { Medication, MedicationInput } from "@/domain/entities/medication"
 import { Button } from "@/shared/ui/button"
 import {
@@ -22,7 +22,6 @@ interface MedicationFormDialogProps {
 }
 
 interface FormState {
-  position: string
   name: string
   quantity: string
   concentration: string
@@ -33,7 +32,6 @@ interface FormState {
 }
 
 const emptyForm: FormState = {
-  position: "",
   name: "",
   quantity: "",
   concentration: "",
@@ -98,7 +96,6 @@ export function MedicationFormDialog({
         const { month, year } = splitExpiration(medication.expirationDate)
         if (!cancelled) {
           setForm({
-            position: String(medication.position),
             name: medication.name,
             quantity: String(medication.quantity),
             concentration: medication.concentration,
@@ -112,16 +109,6 @@ export function MedicationFormDialog({
       }
 
       if (!cancelled) setForm(emptyForm)
-      try {
-        const nextPosition = await medicationUseCases.getNextPosition()
-        if (!cancelled) {
-          setForm((prev) => ({ ...prev, position: String(nextPosition) }))
-        }
-      } catch {
-        if (!cancelled) {
-          setForm((prev) => ({ ...prev, position: "1" }))
-        }
-      }
     }
 
     void loadForm()
@@ -135,11 +122,6 @@ export function MedicationFormDialog({
     setSaving(true)
     setError(null)
     try {
-      const position = Number(form.position)
-      if (!Number.isInteger(position) || position < 1) {
-        throw new Error("La posición debe ser un número entero mayor o igual a 1")
-      }
-
       if (!form.brand.trim()) {
         throw new Error("Selecciona una marca")
       }
@@ -152,7 +134,8 @@ export function MedicationFormDialog({
       const box = form.box.trim()
 
       await onSubmit({
-        position,
+        // Position is automatic on create; preserved silently on edit.
+        position: medication?.position ?? null,
         name: form.name.trim(),
         quantity,
         concentration: form.concentration.trim(),
@@ -181,24 +164,18 @@ export function MedicationFormDialog({
         </DialogHeader>
 
         <form className="grid gap-4" onSubmit={handleSubmit}>
+          <div className="grid gap-2">
+            <Label htmlFor="name">Medicamento</Label>
+            <Input
+              id="name"
+              required
+              placeholder="Ej. AMLODIPINO"
+              value={form.name}
+              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
-            <div className="grid gap-2">
-              <Label htmlFor="position">Posición</Label>
-              <Input
-                id="position"
-                type="number"
-                min={1}
-                required
-                placeholder="Ej. 1"
-                value={form.position}
-                onChange={(event) => setForm((prev) => ({ ...prev, position: event.target.value }))}
-              />
-              {!medication ? (
-                <p className="text-xs text-muted-foreground">
-                  Se sugiere la siguiente automáticamente; puedes cambiarla.
-                </p>
-              ) : null}
-            </div>
             <div className="grid gap-2">
               <Label htmlFor="quantity">Cantidad</Label>
               <Input
@@ -213,24 +190,10 @@ export function MedicationFormDialog({
               />
               {medication ? (
                 <p className="text-xs text-muted-foreground">
-                  Usa Entrada o Salida en la tabla para cambiar el stock.
+                  Usa Entrada o Salida para cambiar el stock.
                 </p>
               ) : null}
             </div>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="name">Medicamento</Label>
-            <Input
-              id="name"
-              required
-              placeholder="Ej. AMLODIPINO"
-              value={form.name}
-              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-2">
               <Label htmlFor="concentration">Concentración</Label>
               <Input
@@ -243,16 +206,17 @@ export function MedicationFormDialog({
                 }
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="box">Caja</Label>
-              <Input
-                id="box"
-                placeholder="Ej. 2"
-                value={form.box}
-                onChange={(event) => setForm((prev) => ({ ...prev, box: event.target.value }))}
-              />
-              <p className="text-xs text-muted-foreground">Opcional</p>
-            </div>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="box">Caja</Label>
+            <Input
+              id="box"
+              placeholder="Ej. caja grande 1"
+              value={form.box}
+              onChange={(event) => setForm((prev) => ({ ...prev, box: event.target.value }))}
+            />
+            <p className="text-xs text-muted-foreground">Opcional</p>
           </div>
 
           <div className="grid gap-2">
