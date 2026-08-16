@@ -2,6 +2,7 @@ export type ExpirationStatus = "all" | "expiring_soon" | "expired" | "no_date"
 
 export interface Medication {
   id: number
+  position: number
   name: string
   quantity: number
   concentration: string
@@ -27,6 +28,7 @@ export interface PaginatedMedications {
 }
 
 export interface MedicationInput {
+  position: number
   name: string
   quantity: number
   concentration: string

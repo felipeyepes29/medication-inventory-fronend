@@ -1,5 +1,6 @@
 import { createCreateMedicationUseCase } from "@/application/use-cases/create-medication"
 import { createDeleteMedicationUseCase } from "@/application/use-cases/delete-medication"
+import { createGetNextPositionUseCase } from "@/application/use-cases/get-next-position"
 import { createListBrandsUseCase } from "@/application/use-cases/list-brands"
 import { createListMedicationsUseCase } from "@/application/use-cases/list-medications"
 import { createListStockMovementsUseCase } from "@/application/use-cases/list-stock-movements"
@@ -17,6 +18,7 @@ export const medicationUseCases = {
   update: createUpdateMedicationUseCase(medicationRepository),
   delete: createDeleteMedicationUseCase(medicationRepository),
   listBrands: createListBrandsUseCase(medicationRepository),
+  getNextPosition: createGetNextPositionUseCase(medicationRepository),
 }
 
 export const stockMovementUseCases = {

@@ -9,6 +9,7 @@ import { apiClient } from "@/infrastructure/http/api-client"
 
 interface MedicationApi {
   id: number
+  position: number
   name: string
   quantity: number
   concentration: string
@@ -28,6 +29,7 @@ interface PaginatedApi {
 function mapMedication(item: MedicationApi): Medication {
   return {
     id: item.id,
+    position: item.position,
     name: item.name,
     quantity: item.quantity,
     concentration: item.concentration,
@@ -63,10 +65,16 @@ export class HttpMedicationRepository implements MedicationRepository {
     return mapMedication(data)
   }
 
+  async getNextPosition(): Promise<number> {
+    const data = await apiClient<{ position: number }>("/api/medications/next-position")
+    return data.position
+  }
+
   async create(input: MedicationInput): Promise<Medication> {
     const data = await apiClient<MedicationApi>("/api/medications", {
       method: "POST",
       body: JSON.stringify({
+        position: input.position,
         name: input.name,
         quantity: input.quantity,
         concentration: input.concentration,
@@ -81,6 +89,7 @@ export class HttpMedicationRepository implements MedicationRepository {
     const data = await apiClient<MedicationApi>(`/api/medications/${id}`, {
       method: "PUT",
       body: JSON.stringify({
+        position: input.position,
         name: input.name,
         quantity: input.quantity,
         concentration: input.concentration,

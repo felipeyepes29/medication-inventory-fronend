@@ -77,6 +77,7 @@ export function InventoryTable({
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-20">Posición</TableHead>
             <TableHead>Medicamento</TableHead>
             <TableHead>Cantidad</TableHead>
             <TableHead>Concentración</TableHead>
@@ -88,6 +89,7 @@ export function InventoryTable({
         <TableBody>
           {items.map((item) => (
             <TableRow key={item.id}>
+              <TableCell className="tabular-nums text-muted-foreground">{item.position}</TableCell>
               <TableCell className="font-medium">{item.name}</TableCell>
               <TableCell>{item.quantity}</TableCell>
               <TableCell>{item.concentration}</TableCell>
