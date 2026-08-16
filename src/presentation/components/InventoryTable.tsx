@@ -1,6 +1,16 @@
-import { ArrowDownToLine, ArrowUpFromLine, History, Pencil, Settings2, Trash2 } from "lucide-react"
+import {
+  ArrowDown,
+  ArrowDownToLine,
+  ArrowUp,
+  ArrowUpDown,
+  ArrowUpFromLine,
+  History,
+  Pencil,
+  Settings2,
+  Trash2,
+} from "lucide-react"
 import type { ReactNode } from "react"
-import type { Medication } from "@/domain/entities/medication"
+import type { Medication, SortField, SortOrder } from "@/domain/entities/medication"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
 import {
@@ -49,11 +59,52 @@ function expirationBadge(value: string | null) {
 interface InventoryTableProps {
   items: Medication[]
   loading: boolean
+  sortBy: SortField
+  sortOrder: SortOrder
+  onSort: (field: SortField) => void
   onEdit: (medication: Medication) => void
   onDelete: (medication: Medication) => void
   onStockIn: (medication: Medication) => void
   onStockOut: (medication: Medication) => void
   onHistory: (medication: Medication) => void
+}
+
+function SortableHead({
+  label,
+  field,
+  sortBy,
+  sortOrder,
+  onSort,
+  className,
+}: {
+  label: string
+  field: SortField
+  sortBy: SortField
+  sortOrder: SortOrder
+  onSort: (field: SortField) => void
+  className?: string
+}) {
+  const active = sortBy === field
+  return (
+    <TableHead className={className}>
+      <button
+        type="button"
+        className="inline-flex items-center gap-1 font-medium hover:text-foreground"
+        onClick={() => onSort(field)}
+      >
+        {label}
+        {active ? (
+          sortOrder === "asc" ? (
+            <ArrowUp className="h-3.5 w-3.5" />
+          ) : (
+            <ArrowDown className="h-3.5 w-3.5" />
+          )
+        ) : (
+          <ArrowUpDown className="h-3.5 w-3.5 opacity-40" />
+        )}
+      </button>
+    </TableHead>
+  )
 }
 
 function MedicationActions({
@@ -130,6 +181,9 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 export function InventoryTable({
   items,
   loading,
+  sortBy,
+  sortOrder,
+  onSort,
   onEdit,
   onDelete,
   onStockIn,
@@ -187,12 +241,31 @@ export function InventoryTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-20">Posición</TableHead>
+              <SortableHead
+                label="Posición"
+                field="position"
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSort={onSort}
+                className="w-28"
+              />
               <TableHead>Medicamento</TableHead>
-              <TableHead>Cantidad</TableHead>
+              <SortableHead
+                label="Cantidad"
+                field="quantity"
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSort={onSort}
+              />
               <TableHead>Concentración</TableHead>
               <TableHead>Marca</TableHead>
-              <TableHead>Caja</TableHead>
+              <SortableHead
+                label="Caja"
+                field="box"
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onSort={onSort}
+              />
               <TableHead>Vencimiento</TableHead>
               <TableHead className="w-16 text-center">Acciones</TableHead>
             </TableRow>

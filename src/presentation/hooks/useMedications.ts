@@ -4,6 +4,8 @@ import type {
   ExpirationStatus,
   Medication,
   MedicationInput,
+  SortField,
+  SortOrder,
 } from "@/domain/entities/medication"
 import type { StockMovementInput } from "@/domain/entities/stock-movement"
 
@@ -18,13 +20,17 @@ function resolvePageSize(option: PageSizeOption): number {
 export function useMedications() {
   const [items, setItems] = useState<Medication[]>([])
   const [brands, setBrands] = useState<string[]>([])
+  const [boxes, setBoxes] = useState<string[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [q, setQ] = useState("")
   const [debouncedQ, setDebouncedQ] = useState("")
   const [brand, setBrand] = useState<string>("all")
+  const [box, setBox] = useState<string>("all")
   const [expirationStatus, setExpirationStatus] = useState<ExpirationStatus>("all")
+  const [sortBy, setSortBy] = useState<SortField>("position")
+  const [sortOrder, setSortOrder] = useState<SortOrder>("asc")
   const [page, setPage] = useState(1)
   const [pageSizeOption, setPageSizeOption] = useState<PageSizeOption>(20)
 
@@ -35,11 +41,20 @@ export function useMedications() {
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedQ, brand, expirationStatus])
+  }, [debouncedQ, brand, box, expirationStatus, sortBy, sortOrder])
 
   const changePageSize = (value: PageSizeOption) => {
     setPageSizeOption(value)
     setPage(1)
+  }
+
+  const toggleSort = (field: SortField) => {
+    if (sortBy === field) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
+      return
+    }
+    setSortBy(field)
+    setSortOrder("asc")
   }
 
   const refresh = useCallback(async () => {
@@ -47,25 +62,30 @@ export function useMedications() {
     setError(null)
     try {
       const pageSize = resolvePageSize(pageSizeOption)
-      const [listResult, brandResult] = await Promise.all([
+      const [listResult, brandResult, boxResult] = await Promise.all([
         medicationUseCases.list({
           q: debouncedQ || undefined,
           brand: brand === "all" ? undefined : brand,
+          box: box === "all" ? undefined : box,
           expirationStatus,
+          sortBy,
+          sortOrder,
           page: pageSizeOption === "all" ? 1 : page,
           pageSize,
         }),
         medicationUseCases.listBrands(),
+        medicationUseCases.listBoxes(),
       ])
       setItems(listResult.items)
       setTotal(listResult.total)
       setBrands(brandResult)
+      setBoxes(boxResult)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar el inventario")
     } finally {
       setLoading(false)
     }
-  }, [brand, debouncedQ, expirationStatus, page, pageSizeOption])
+  }, [brand, box, debouncedQ, expirationStatus, page, pageSizeOption, sortBy, sortOrder])
 
   useEffect(() => {
     void refresh()
@@ -94,6 +114,7 @@ export function useMedications() {
   const clearFilters = () => {
     setQ("")
     setBrand("all")
+    setBox("all")
     setExpirationStatus("all")
     setPage(1)
   }
@@ -104,6 +125,7 @@ export function useMedications() {
   return {
     items,
     brands,
+    boxes,
     total,
     loading,
     error,
@@ -111,8 +133,13 @@ export function useMedications() {
     setQ,
     brand,
     setBrand,
+    box,
+    setBox,
     expirationStatus,
     setExpirationStatus,
+    sortBy,
+    sortOrder,
+    toggleSort,
     page,
     setPage,
     pageSizeOption,

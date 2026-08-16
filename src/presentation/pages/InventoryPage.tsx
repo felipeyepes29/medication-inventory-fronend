@@ -22,6 +22,7 @@ export function InventoryPage({ onOpenBrands, onOpenHistory }: InventoryPageProp
   const {
     items,
     brands,
+    boxes,
     total,
     loading,
     error,
@@ -29,8 +30,13 @@ export function InventoryPage({ onOpenBrands, onOpenHistory }: InventoryPageProp
     setQ,
     brand,
     setBrand,
+    box,
+    setBox,
     expirationStatus,
     setExpirationStatus,
+    sortBy,
+    sortOrder,
+    toggleSort,
     page,
     setPage,
     pageSizeOption,
@@ -111,6 +117,9 @@ export function InventoryPage({ onOpenBrands, onOpenHistory }: InventoryPageProp
             brand={brand}
             brands={brands}
             onBrandChange={setBrand}
+            box={box}
+            boxes={boxes}
+            onBoxChange={setBox}
             expirationStatus={expirationStatus}
             onExpirationStatusChange={setExpirationStatus}
             onClear={clearFilters}
@@ -126,6 +135,9 @@ export function InventoryPage({ onOpenBrands, onOpenHistory }: InventoryPageProp
             <InventoryTable
               items={items}
               loading={loading}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={toggleSort}
               onEdit={(medication) => {
                 setEditing(medication)
                 setFormOpen(true)

@@ -47,9 +47,12 @@ export class HttpMedicationRepository implements MedicationRepository {
     const params = new URLSearchParams()
     if (filters.q) params.set("q", filters.q)
     if (filters.brand) params.set("brand", filters.brand)
+    if (filters.box) params.set("box", filters.box)
     if (filters.expirationStatus) {
       params.set("expiration_status", filters.expirationStatus)
     }
+    if (filters.sortBy) params.set("sort_by", filters.sortBy)
+    if (filters.sortOrder) params.set("sort_order", filters.sortOrder)
     params.set("page", String(filters.page ?? 1))
     params.set("page_size", String(filters.pageSize ?? 100))
 

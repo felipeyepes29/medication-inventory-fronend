@@ -18,6 +18,9 @@ interface InventoryFiltersProps {
   brand: string
   brands: string[]
   onBrandChange: (value: string) => void
+  box: string
+  boxes: string[]
+  onBoxChange: (value: string) => void
   expirationStatus: ExpirationStatus
   onExpirationStatusChange: (value: ExpirationStatus) => void
   onClear: () => void
@@ -29,6 +32,9 @@ export function InventoryFilters({
   brand,
   brands,
   onBrandChange,
+  box,
+  boxes,
+  onBoxChange,
   expirationStatus,
   onExpirationStatusChange,
   onClear,
@@ -37,9 +43,10 @@ export function InventoryFilters({
     let count = 0
     if (q.trim()) count += 1
     if (brand !== "all") count += 1
+    if (box !== "all") count += 1
     if (expirationStatus !== "all") count += 1
     return count
-  }, [brand, expirationStatus, q])
+  }, [brand, box, expirationStatus, q])
 
   const [open, setOpen] = useState(activeCount > 0)
 
@@ -62,7 +69,7 @@ export function InventoryFilters({
             ) : null}
           </div>
           <p className="mt-1 hidden text-sm text-muted-foreground lg:block">
-            Refina por nombre, marca o vencimiento.
+            Refina por nombre, marca, caja o vencimiento.
           </p>
         </div>
         <ChevronDown
@@ -111,6 +118,23 @@ export function InventoryFilters({
           </div>
 
           <div className="min-w-0 space-y-1.5">
+            <span className="text-sm font-medium text-muted-foreground">Caja</span>
+            <Select value={box} onValueChange={onBoxChange}>
+              <SelectTrigger className="min-w-0">
+                <SelectValue placeholder="Todas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                {boxes.map((item) => (
+                  <SelectItem key={item} value={item}>
+                    {item}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="min-w-0 space-y-1.5 sm:col-span-2 lg:col-span-1">
             <span className="text-sm font-medium text-muted-foreground">Vencimiento</span>
             <Select
               value={expirationStatus}

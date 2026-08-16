@@ -1,4 +1,6 @@
 export type ExpirationStatus = "all" | "expiring_soon" | "expired" | "no_date"
+export type SortField = "position" | "box" | "quantity"
+export type SortOrder = "asc" | "desc"
 
 export interface Medication {
   id: number
@@ -16,7 +18,10 @@ export interface Medication {
 export interface MedicationFilters {
   q?: string
   brand?: string
+  box?: string
   expirationStatus?: ExpirationStatus
+  sortBy?: SortField
+  sortOrder?: SortOrder
   page?: number
   pageSize?: number
 }
