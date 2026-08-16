@@ -1,6 +1,15 @@
+import { ArrowDownToLine, ArrowUpFromLine, History, Pencil, Settings2, Trash2 } from "lucide-react"
 import type { Medication } from "@/domain/entities/medication"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/shared/ui/dropdown-menu"
 import {
   Table,
   TableBody,
@@ -73,7 +82,7 @@ export function InventoryTable({
             <TableHead>Concentración</TableHead>
             <TableHead>Marca</TableHead>
             <TableHead>Vencimiento</TableHead>
-            <TableHead className="text-right">Acciones</TableHead>
+            <TableHead className="w-14 text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -84,35 +93,51 @@ export function InventoryTable({
               <TableCell>{item.concentration}</TableCell>
               <TableCell>{item.brand}</TableCell>
               <TableCell>{expirationBadge(item.expirationDate)}</TableCell>
-              <TableCell>
-                <div className="flex flex-wrap justify-end gap-2">
-                  <Button type="button" variant="outline" size="sm" onClick={() => onStockIn(item)}>
-                    Entrada
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onStockOut(item)}
-                    disabled={item.quantity <= 0}
-                  >
-                    Salida
-                  </Button>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => onHistory(item)}>
-                    Historial
-                  </Button>
-                  <Button type="button" variant="outline" size="sm" onClick={() => onEdit(item)}>
-                    Editar
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => onDelete(item)}
-                  >
-                    Eliminar
-                  </Button>
-                </div>
+              <TableCell className="p-2 text-right">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      aria-label={`Acciones de ${item.name}`}
+                    >
+                      <Settings2 className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => onStockIn(item)}>
+                      <ArrowDownToLine className="h-4 w-4" />
+                      Entrada
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      disabled={item.quantity <= 0}
+                      onSelect={() => onStockOut(item)}
+                    >
+                      <ArrowUpFromLine className="h-4 w-4" />
+                      Salida
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => onHistory(item)}>
+                      <History className="h-4 w-4" />
+                      Historial
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => onEdit(item)}>
+                      <Pencil className="h-4 w-4" />
+                      Editar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                      onSelect={() => onDelete(item)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Eliminar
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </TableCell>
             </TableRow>
           ))}
