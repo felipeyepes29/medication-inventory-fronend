@@ -14,6 +14,7 @@ interface MedicationApi {
   quantity: number
   concentration: string
   brand: string
+  box: string | null
   expiration_date: string | null
   created_at: string | null
   updated_at: string | null
@@ -34,6 +35,7 @@ function mapMedication(item: MedicationApi): Medication {
     quantity: item.quantity,
     concentration: item.concentration,
     brand: item.brand,
+    box: item.box,
     expirationDate: item.expiration_date,
     createdAt: item.created_at,
     updatedAt: item.updated_at,
@@ -79,6 +81,7 @@ export class HttpMedicationRepository implements MedicationRepository {
         quantity: input.quantity,
         concentration: input.concentration,
         brand: input.brand,
+        box: input.box,
         expiration_date: input.expirationDate,
       }),
     })
@@ -94,6 +97,7 @@ export class HttpMedicationRepository implements MedicationRepository {
         quantity: input.quantity,
         concentration: input.concentration,
         brand: input.brand,
+        box: input.box,
         expiration_date: input.expirationDate,
       }),
     })

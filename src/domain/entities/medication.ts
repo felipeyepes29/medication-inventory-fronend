@@ -7,6 +7,7 @@ export interface Medication {
   quantity: number
   concentration: string
   brand: string
+  box: string | null
   expirationDate: string | null
   createdAt: string | null
   updatedAt: string | null
@@ -33,5 +34,6 @@ export interface MedicationInput {
   quantity: number
   concentration: string
   brand: string
+  box: string | null
   expirationDate: string | null
 }

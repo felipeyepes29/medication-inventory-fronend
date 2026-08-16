@@ -13,7 +13,11 @@ import { useMedications } from "@/presentation/hooks/useMedications"
 import { clearAccessToken } from "@/infrastructure/auth/token-storage"
 import { Button } from "@/shared/ui/button"
 
-export function InventoryPage() {
+interface InventoryPageProps {
+  onOpenBrands: () => void
+}
+
+export function InventoryPage({ onOpenBrands }: InventoryPageProps) {
   const {
     items,
     brands,
@@ -71,6 +75,9 @@ export function InventoryPage() {
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <Button type="button" variant="outline" onClick={onOpenBrands}>
+              Marcas
+            </Button>
             <Button
               type="button"
               variant="outline"

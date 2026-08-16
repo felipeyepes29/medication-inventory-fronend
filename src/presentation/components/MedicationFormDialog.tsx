@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react"
+import { brandUseCases, medicationUseCases } from "@/application/composition"
 import type { Medication, MedicationInput } from "@/domain/entities/medication"
 import { Button } from "@/shared/ui/button"
 import {
@@ -11,6 +12,7 @@ import {
 } from "@/shared/ui/dialog"
 import { Input } from "@/shared/ui/input"
 import { Label } from "@/shared/ui/label"
+import { SearchSelect } from "@/shared/ui/search-select"
 
 interface MedicationFormDialogProps {
   open: boolean
@@ -25,6 +27,7 @@ interface FormState {
   quantity: string
   concentration: string
   brand: string
+  box: string
   month: string
   year: string
 }
@@ -35,6 +38,7 @@ const emptyForm: FormState = {
   quantity: "",
   concentration: "",
   brand: "",
+  box: "",
   month: "",
   year: "",
 }
@@ -70,26 +74,60 @@ export function MedicationFormDialog({
   onSubmit,
 }: MedicationFormDialogProps) {
   const [form, setForm] = useState<FormState>(emptyForm)
+  const [brandOptions, setBrandOptions] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!open) return
-    if (medication) {
-      const { month, year } = splitExpiration(medication.expirationDate)
-      setForm({
-        position: String(medication.position),
-        name: medication.name,
-        quantity: String(medication.quantity),
-        concentration: medication.concentration,
-        brand: medication.brand,
-        month,
-        year,
-      })
-    } else {
-      setForm(emptyForm)
+
+    let cancelled = false
+
+    const loadForm = async () => {
+      setError(null)
+      try {
+        const brands = await brandUseCases.list()
+        if (!cancelled) {
+          setBrandOptions(brands.map((item) => item.name))
+        }
+      } catch {
+        if (!cancelled) setBrandOptions([])
+      }
+
+      if (medication) {
+        const { month, year } = splitExpiration(medication.expirationDate)
+        if (!cancelled) {
+          setForm({
+            position: String(medication.position),
+            name: medication.name,
+            quantity: String(medication.quantity),
+            concentration: medication.concentration,
+            brand: medication.brand,
+            box: medication.box ?? "",
+            month,
+            year,
+          })
+        }
+        return
+      }
+
+      if (!cancelled) setForm(emptyForm)
+      try {
+        const nextPosition = await medicationUseCases.getNextPosition()
+        if (!cancelled) {
+          setForm((prev) => ({ ...prev, position: String(nextPosition) }))
+        }
+      } catch {
+        if (!cancelled) {
+          setForm((prev) => ({ ...prev, position: "1" }))
+        }
+      }
     }
-    setError(null)
+
+    void loadForm()
+    return () => {
+      cancelled = true
+    }
   }, [medication, open])
 
   const handleSubmit = async (event: FormEvent) => {
@@ -102,10 +140,16 @@ export function MedicationFormDialog({
         throw new Error("La posición debe ser un número entero mayor o igual a 1")
       }
 
+      if (!form.brand.trim()) {
+        throw new Error("Selecciona una marca")
+      }
+
       const quantity = Number(form.quantity)
       if (!Number.isFinite(quantity) || quantity < 0) {
         throw new Error("La cantidad debe ser un número válido")
       }
+
+      const box = form.box.trim()
 
       await onSubmit({
         position,
@@ -113,6 +157,7 @@ export function MedicationFormDialog({
         quantity,
         concentration: form.concentration.trim(),
         brand: form.brand.trim(),
+        box: box || null,
         expirationDate: buildExpirationDate(form.month, form.year),
       })
       onOpenChange(false)
@@ -148,6 +193,11 @@ export function MedicationFormDialog({
                 value={form.position}
                 onChange={(event) => setForm((prev) => ({ ...prev, position: event.target.value }))}
               />
+              {!medication ? (
+                <p className="text-xs text-muted-foreground">
+                  Se sugiere la siguiente automáticamente; puedes cambiarla.
+                </p>
+              ) : null}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="quantity">Cantidad</Label>
@@ -180,27 +230,40 @@ export function MedicationFormDialog({
             />
           </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="concentration">Concentración</Label>
-            <Input
-              id="concentration"
-              required
-              placeholder="Ej. 50MG"
-              value={form.concentration}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, concentration: event.target.value }))
-              }
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-2">
+              <Label htmlFor="concentration">Concentración</Label>
+              <Input
+                id="concentration"
+                required
+                placeholder="Ej. 50MG"
+                value={form.concentration}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, concentration: event.target.value }))
+                }
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="box">Caja</Label>
+              <Input
+                id="box"
+                placeholder="Ej. 2"
+                value={form.box}
+                onChange={(event) => setForm((prev) => ({ ...prev, box: event.target.value }))}
+              />
+              <p className="text-xs text-muted-foreground">Opcional</p>
+            </div>
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="brand">Marca</Label>
-            <Input
+            <SearchSelect
               id="brand"
-              required
-              placeholder="Ej. GENFAR"
+              options={brandOptions}
               value={form.brand}
-              onChange={(event) => setForm((prev) => ({ ...prev, brand: event.target.value }))}
+              onChange={(value) => setForm((prev) => ({ ...prev, brand: value }))}
+              placeholder="Buscar y seleccionar marca"
+              emptyText="No hay marcas. Agrégalas en Marcas."
             />
           </div>
 

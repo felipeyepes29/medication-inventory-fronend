@@ -82,6 +82,7 @@ export function InventoryTable({
             <TableHead>Cantidad</TableHead>
             <TableHead>Concentración</TableHead>
             <TableHead>Marca</TableHead>
+            <TableHead>Caja</TableHead>
             <TableHead>Vencimiento</TableHead>
             <TableHead className="w-14 text-right">Acciones</TableHead>
           </TableRow>
@@ -94,6 +95,7 @@ export function InventoryTable({
               <TableCell>{item.quantity}</TableCell>
               <TableCell>{item.concentration}</TableCell>
               <TableCell>{item.brand}</TableCell>
+              <TableCell className="text-muted-foreground">{item.box ?? "—"}</TableCell>
               <TableCell>{expirationBadge(item.expirationDate)}</TableCell>
               <TableCell className="p-2 text-right">
                 <DropdownMenu>
