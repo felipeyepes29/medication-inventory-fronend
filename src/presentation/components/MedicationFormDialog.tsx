@@ -149,7 +149,7 @@ export function MedicationFormDialog({
         quantity,
         concentration: form.concentration.trim(),
         brand: form.brand.trim(),
-        box: box || null,
+        box: box ? box.replace(/\s+/g, " ").toUpperCase() : null,
         expirationDate: buildExpirationDate(form.month, form.year),
       })
       onOpenChange(false)
