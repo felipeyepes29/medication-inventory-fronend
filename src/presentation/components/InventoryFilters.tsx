@@ -36,6 +36,7 @@ interface InventoryFiltersProps {
   siteId?: string
   sites?: { id: number; name: string }[]
   onSiteChange?: (value: string) => void
+  showBox?: boolean
 }
 
 export function InventoryFilters({
@@ -53,17 +54,18 @@ export function InventoryFilters({
   siteId,
   sites,
   onSiteChange,
+  showBox = true,
 }: InventoryFiltersProps) {
   const showSites = Boolean(sites && onSiteChange && siteId !== undefined)
   const activeCount = useMemo(() => {
     let count = 0
     if (q.trim()) count += 1
     if (brand !== "all") count += 1
-    if (box !== "all") count += 1
+    if (showBox && box !== "all") count += 1
     if (expirationStatus !== "all") count += 1
     if (showSites && siteId !== "all") count += 1
     return count
-  }, [brand, box, expirationStatus, q, showSites, siteId])
+  }, [brand, box, expirationStatus, q, showBox, showSites, siteId])
 
   const [open, setOpen] = useState(activeCount > 0)
 
@@ -86,7 +88,7 @@ export function InventoryFilters({
             ) : null}
           </div>
           <p className="mt-1 hidden text-sm text-muted-foreground lg:block">
-            Refina por nombre, marca, caja, sede o vencimiento.
+            Refina por nombre, marca{showBox ? ", caja" : ""}, sede o vencimiento.
           </p>
         </div>
         <ChevronDown
@@ -156,23 +158,25 @@ export function InventoryFilters({
             </div>
           ) : null}
 
-          <div className="min-w-0 space-y-1.5">
-            <span className="text-sm font-medium text-muted-foreground">Caja</span>
-            <Select value={box} onValueChange={onBoxChange}>
-              <SelectTrigger className="min-w-0">
-                <Box className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <SelectValue placeholder="Todas" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                {boxes.map((item) => (
-                  <SelectItem key={item} value={item}>
-                    {item}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {showBox ? (
+            <div className="min-w-0 space-y-1.5">
+              <span className="text-sm font-medium text-muted-foreground">Caja</span>
+              <Select value={box} onValueChange={onBoxChange}>
+                <SelectTrigger className="min-w-0">
+                  <Box className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <SelectValue placeholder="Todas" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  {boxes.map((item) => (
+                    <SelectItem key={item} value={item}>
+                      {item}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
 
           <div className="min-w-0 space-y-1.5 sm:col-span-2 lg:col-span-1">
             <span className="text-sm font-medium text-muted-foreground">Vencimiento</span>

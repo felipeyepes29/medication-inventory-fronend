@@ -159,6 +159,7 @@ export function InventoryPage({ mode }: InventoryPageProps) {
             box={box}
             boxes={boxes}
             onBoxChange={setBox}
+            showBox={!publicCatalog}
             expirationStatus={expirationStatus}
             onExpirationStatusChange={setExpirationStatus}
             onClear={clearFilters}
@@ -182,6 +183,7 @@ export function InventoryPage({ mode }: InventoryPageProps) {
               onSort={toggleSort}
               readOnly={publicCatalog}
               showSite={showSiteColumn}
+              showBox={!publicCatalog}
               onEdit={
                 publicCatalog
                   ? undefined

@@ -69,11 +69,11 @@ export function useMedications({ publicCatalog = false }: UseMedicationsOptions 
     setError(null)
     try {
       const pageSize = resolvePageSize(pageSizeOption)
-      const [listResult, brandResult, boxResult] = await Promise.all([
+          const [listResult, brandResult, boxResult] = await Promise.all([
         medicationUseCases.list({
           q: debouncedQ || undefined,
           brand: brand === "all" ? undefined : brand,
-          box: box === "all" ? undefined : box,
+          box: publicCatalog || box === "all" ? undefined : box,
           siteId: resolvedSiteId,
           expirationStatus,
           sortBy,
@@ -83,7 +83,7 @@ export function useMedications({ publicCatalog = false }: UseMedicationsOptions 
           skipAuth: publicCatalog,
         }),
         medicationUseCases.listBrands(resolvedSiteId, publicCatalog),
-        medicationUseCases.listBoxes(resolvedSiteId, publicCatalog),
+        publicCatalog ? Promise.resolve([]) : medicationUseCases.listBoxes(resolvedSiteId, publicCatalog),
       ])
       setItems(listResult.items)
       setTotal(listResult.total)

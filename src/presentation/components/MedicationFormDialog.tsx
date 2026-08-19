@@ -152,7 +152,7 @@ export function MedicationFormDialog({
       if (!form.brand.trim()) {
         throw new Error("Selecciona una marca")
       }
-      if (requireSite && !medication && !form.siteId) {
+      if (requireSite && !form.siteId) {
         throw new Error("Selecciona una sede")
       }
 
@@ -195,7 +195,7 @@ export function MedicationFormDialog({
         </DialogHeader>
 
         <form className="grid gap-4" onSubmit={handleSubmit}>
-          {requireSite && !medication ? (
+          {requireSite ? (
             <div className="grid gap-2">
               <Label>Sede</Label>
               <Select
@@ -207,11 +207,13 @@ export function MedicationFormDialog({
                   <SelectValue placeholder="Elige una sede" />
                 </SelectTrigger>
                 <SelectContent>
-                  {sites.filter((item) => item.isActive).map((item) => (
-                    <SelectItem key={item.id} value={String(item.id)}>
-                      {item.name}
-                    </SelectItem>
-                  ))}
+                  {sites
+                    .filter((item) => item.isActive || String(item.id) === form.siteId)
+                    .map((item) => (
+                      <SelectItem key={item.id} value={String(item.id)}>
+                        {item.name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
@@ -243,11 +245,6 @@ export function MedicationFormDialog({
                 value={form.quantity}
                 onChange={(event) => setForm((prev) => ({ ...prev, quantity: event.target.value }))}
               />
-              {medication ? (
-                <p className="text-xs text-muted-foreground">
-                  Usa Entrada o Salida para cambiar el stock.
-                </p>
-              ) : null}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="concentration">Concentración</Label>
@@ -263,6 +260,11 @@ export function MedicationFormDialog({
               />
             </div>
           </div>
+          {medication ? (
+            <p className="-mt-2 text-xs text-muted-foreground">
+              La cantidad no se edita aquí. Usa Entrada o Salida para cambiar el stock.
+            </p>
+          ) : null}
 
           <div className="grid gap-2">
             <Label htmlFor="box">Caja</Label>

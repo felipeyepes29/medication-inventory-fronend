@@ -91,6 +91,7 @@ interface InventoryTableProps {
   onSort: (field: SortField) => void
   readOnly?: boolean
   showSite?: boolean
+  showBox?: boolean
   onEdit?: (medication: Medication) => void
   onDelete?: (medication: Medication) => void
   onStockIn?: (medication: Medication) => void
@@ -220,6 +221,7 @@ export function InventoryTable({
   onSort,
   readOnly = false,
   showSite = false,
+  showBox = true,
   onEdit,
   onDelete,
   onStockIn,
@@ -282,14 +284,16 @@ export function InventoryTable({
                   </dd>
                 </div>
               ) : null}
-              <Field label="Caja" className={readOnly ? "col-span-2" : undefined}>
-                {item.box ?? "—"}
-              </Field>
+              {showBox ? (
+                <Field label="Caja" className={readOnly ? "col-span-2" : undefined}>
+                  {item.box ?? "—"}
+                </Field>
+              ) : null}
               {readOnly ? null : <Field label="Cantidad">{item.quantity}</Field>}
               {readOnly ? (
                 <Field label="Disponibilidad">{availabilityBadge(item.quantity)}</Field>
               ) : null}
-              <div className={readOnly ? "min-w-0" : "col-span-2 min-w-0"}>
+              <div className={readOnly && !showBox ? "col-span-2 min-w-0" : readOnly ? "min-w-0" : "col-span-2 min-w-0"}>
                 <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                   Vencimiento
                 </dt>
@@ -324,13 +328,15 @@ export function InventoryTable({
               />
               <TableHead>Concentración</TableHead>
               <TableHead>Marca</TableHead>
-              <SortableHead
-                label="Caja"
-                field="box"
-                sortBy={sortBy}
-                sortOrder={sortOrder}
-                onSort={onSort}
-              />
+              {showBox ? (
+                <SortableHead
+                  label="Caja"
+                  field="box"
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
+                  onSort={onSort}
+                />
+              ) : null}
               <TableHead>Vencimiento</TableHead>
               {!readOnly ? <TableHead className="w-16 text-center">Acciones</TableHead> : null}
             </TableRow>
@@ -354,7 +360,9 @@ export function InventoryTable({
                 </TableCell>
                 <TableCell>{item.concentration}</TableCell>
                 <TableCell>{item.brand}</TableCell>
-                <TableCell className="text-muted-foreground">{item.box ?? "—"}</TableCell>
+                {showBox ? (
+                  <TableCell className="text-muted-foreground">{item.box ?? "—"}</TableCell>
+                ) : null}
                 <TableCell>{expirationBadge(item.expirationDate)}</TableCell>
                 {!readOnly && canAct ? (
                   <TableCell className="p-2">
