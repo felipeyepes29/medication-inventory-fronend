@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
 import { stockMovementUseCases } from "@/application/composition"
 import type { Medication } from "@/domain/entities/medication"
-import { formatRecipient, type StockMovement } from "@/domain/entities/stock-movement"
+import type { StockMovement } from "@/domain/entities/stock-movement"
+import { RecipientInfo } from "@/presentation/components/RecipientInfo"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
 import {
@@ -99,9 +100,7 @@ export function StockMovementHistoryDialog({
           <>
             {/* Mobile cards */}
             <ul className="grid max-h-[min(70vh,520px)] gap-3 overflow-y-auto md:hidden">
-              {items.map((item) => {
-                const recipient = formatRecipient(item)
-                return (
+              {items.map((item) => (
                   <li key={item.id} className="rounded-xl border bg-card p-4 shadow-sm">
                     <div className="flex items-start justify-between gap-3">
                       <p className="text-xs text-muted-foreground">{formatDate(item.createdAt)}</p>
@@ -131,12 +130,9 @@ export function StockMovementHistoryDialog({
                     {item.note ? (
                       <p className="mt-2 text-sm text-muted-foreground">{item.note}</p>
                     ) : null}
-                    {recipient ? (
-                      <p className="mt-1 text-sm text-muted-foreground">Entregado a: {recipient}</p>
-                    ) : null}
+                    <RecipientInfo item={item} labeled />
                   </li>
-                )
-              })}
+                ))}
             </ul>
 
             {/* Desktop table */}
@@ -170,9 +166,9 @@ export function StockMovementHistoryDialog({
                       </TableCell>
                       <TableCell>{item.previousQuantity}</TableCell>
                       <TableCell>{item.newQuantity}</TableCell>
-                      <TableCell className="max-w-[220px] truncate">{item.note || "—"}</TableCell>
-                      <TableCell className="max-w-[260px] truncate">
-                        {formatRecipient(item) || "—"}
+                      <TableCell className="max-w-55 whitespace-normal break-words">{item.note || "—"}</TableCell>
+                      <TableCell className="min-w-52 align-top whitespace-normal">
+                        <RecipientInfo item={item} />
                       </TableCell>
                     </TableRow>
                   ))}

@@ -4,7 +4,7 @@ import { cn } from "@/shared/lib/utils"
 export function Table({ className, ...props }: HTMLAttributes<HTMLTableElement>) {
   return (
     <div className="relative w-full overflow-auto">
-      <table className={cn("w-full caption-bottom text-sm", className)} {...props} />
+      <table className={cn("w-full caption-bottom text-sm [&_td]:whitespace-normal", className)} {...props} />
     </div>
   )
 }

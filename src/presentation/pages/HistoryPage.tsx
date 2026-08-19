@@ -3,7 +3,8 @@ import { ArrowLeft, ArrowDownToLine, ArrowUpFromLine, Building2, ChevronLeft, Ch
 import { Link } from "react-router-dom"
 import { stockMovementUseCases } from "@/application/composition"
 import type { Site } from "@/domain/entities/auth"
-import { formatRecipient, type MovementType, type StockMovement } from "@/domain/entities/stock-movement"
+import { RecipientInfo } from "@/presentation/components/RecipientInfo"
+import type { MovementType, StockMovement } from "@/domain/entities/stock-movement"
 import { listSites } from "@/infrastructure/repositories/http-site-repository"
 import { useAuth } from "@/presentation/hooks/useAuth"
 import { Badge } from "@/shared/ui/badge"
@@ -84,7 +85,7 @@ export function HistoryPage() {
   }, [refresh])
 
   return (
-    <main className="overflow-x-hidden">
+    <main className="min-w-0">
       <div className="mx-auto flex w-full max-w-[1200px] min-w-0 flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-2">
@@ -174,9 +175,7 @@ export function HistoryPage() {
               No hay movimientos todavía.
             </li>
           ) : (
-            items.map((item) => {
-              const recipient = formatRecipient(item)
-              return (
+            items.map((item) => (
               <li key={item.id} className="rounded-xl border bg-card p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -212,21 +211,16 @@ export function HistoryPage() {
                   </div>
                 </dl>
                 {item.note ? (
-                  <p className="mt-2 truncate text-sm text-muted-foreground">{item.note}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{item.note}</p>
                 ) : null}
-                {recipient ? (
-                  <p className="mt-1 truncate text-sm text-muted-foreground">
-                    Entregado a: {recipient}
-                  </p>
-                ) : null}
+                <RecipientInfo item={item} labeled />
               </li>
-              )
-            })
+            ))
           )}
         </ul>
 
         {/* Desktop table */}
-        <div className="hidden overflow-hidden rounded-lg border bg-card md:block">
+        <div className="hidden overflow-x-auto rounded-lg border bg-card md:block">
           {loading ? (
             <p className="py-10 text-center text-sm text-muted-foreground">Cargando...</p>
           ) : items.length === 0 ? (
@@ -271,9 +265,9 @@ export function HistoryPage() {
                     </TableCell>
                     <TableCell>{item.previousQuantity}</TableCell>
                     <TableCell>{item.newQuantity}</TableCell>
-                    <TableCell className="max-w-[180px] truncate">{item.note || "—"}</TableCell>
-                    <TableCell className="max-w-[220px] truncate">
-                      {formatRecipient(item) || "—"}
+                    <TableCell className="max-w-45 whitespace-normal break-words">{item.note || "—"}</TableCell>
+                    <TableCell className="min-w-52 align-top whitespace-normal">
+                      <RecipientInfo item={item} />
                     </TableCell>
                   </TableRow>
                 ))}

@@ -66,14 +66,28 @@ export function formatBirthDate(value: string | null): string | null {
   return `${day}/${month}/${year}`
 }
 
+export interface RecipientDetails {
+  name: string | null
+  document: string | null
+  birthCity: string | null
+  birthDate: string | null
+}
+
+export function getRecipientDetails(item: StockMovement): RecipientDetails | null {
+  const name = [item.firstName, item.lastName].filter(Boolean).join(" ") || null
+  const document = [item.documentType, item.identityDocument].filter(Boolean).join(" ") || null
+  const birthCity = item.birthCity || null
+  const birthDate = formatBirthDate(item.birthDate)
+
+  if (!name && !document && !birthCity && !birthDate) return null
+
+  return { name, document, birthCity, birthDate }
+}
+
 export function formatRecipient(item: StockMovement): string | null {
-  const fullName = [item.firstName, item.lastName].filter(Boolean).join(" ")
-  const document = [item.documentType, item.identityDocument].filter(Boolean).join(" ")
-  const parts = [
-    fullName || null,
-    document || null,
-    item.birthCity,
-    formatBirthDate(item.birthDate),
-  ].filter((part): part is string => Boolean(part))
-  return parts.length > 0 ? parts.join(" · ") : null
+  const details = getRecipientDetails(item)
+  if (!details) return null
+  return [details.name, details.document, details.birthCity, details.birthDate]
+    .filter((part): part is string => Boolean(part))
+    .join(" · ")
 }

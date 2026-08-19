@@ -1,8 +1,22 @@
+import type { ReactNode } from "react"
 import { ArrowLeft } from "lucide-react"
 import { Link } from "react-router-dom"
 import { SiteFooter } from "@/presentation/components/SiteFooter"
 import { ThemeToggle } from "@/presentation/components/ThemeToggle"
 import { Button } from "@/shared/ui/button"
+
+function RuyHubLink({ children }: { children?: ReactNode }) {
+  return (
+    <a
+      href="https://ruyhub.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="font-medium text-foreground underline-offset-4 hover:underline"
+    >
+      {children ?? "RuyHub"}
+    </a>
+  )
+}
 
 export function TermsPage() {
   return (
@@ -34,8 +48,7 @@ export function TermsPage() {
           <section className="space-y-2">
             <h2 className="text-base font-semibold text-foreground">1. Origen y propósito</h2>
             <p>
-              Este software nace como una donación de <strong className="text-foreground">Ruyhub</strong>{" "}
-              para ayudar a organizar medicamentos en el marco de la tragedia del terremoto ocurrido
+              Este software nace como una donación de <RuyHubLink /> para ayudar a organizar medicamentos en el marco de la tragedia del terremoto ocurrido
               en Colombia el 10 de agosto de 2026. Su único fin es facilitar el inventario y la
               coordinación humanitaria de centros de acopio. No es un producto comercial.
             </p>
@@ -86,10 +99,10 @@ export function TermsPage() {
           <section className="space-y-2">
             <h2 className="text-base font-semibold text-foreground">5. Limitación de responsabilidad</h2>
             <p>
-              Ruyhub creó el software, lo presta de forma gratuita y pone a disposición el servidor.
-              Agradecemos esa ayuda. Ni Ruyhub ni quienes operamos esta instancia nos hacemos
-              responsables de los daños que puedan causarse a través de este software, ni del mal uso
-              que se haga de él, ni de decisiones clínicas, logísticas o de entrega tomadas con base
+              <RuyHubLink /> creó el software, lo presta de forma gratuita y pone a disposición el
+              servidor. Agradecemos esa ayuda. Ni <RuyHubLink /> ni quienes operamos esta instancia nos
+              hacemos responsables de los daños que puedan causarse a través de este software, ni del mal
+              uso que se haga de él, ni de decisiones clínicas, logísticas o de entrega tomadas con base
               en la información registrada.
             </p>
             <p>
@@ -102,10 +115,9 @@ export function TermsPage() {
           <section className="space-y-2">
             <h2 className="text-base font-semibold text-foreground">6. Propiedad intelectual</h2>
             <p>
-              El software es de propiedad de <strong className="text-foreground">Ruyhub</strong>,
-              quien ostenta los derechos de autor. Está prohibido venderlo, distribuirlo o
-              comercializarlo bajo cualquier concepto, total o parcialmente, sin autorización
-              expresa de Ruyhub.
+              El software es de propiedad de <RuyHubLink />, quien ostenta los derechos de autor.
+              Está prohibido venderlo, distribuirlo o comercializarlo bajo cualquier concepto, total
+              o parcialmente, sin autorización expresa de <RuyHubLink />.
             </p>
           </section>
 
