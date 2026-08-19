@@ -20,6 +20,8 @@ interface StockMovementApi {
   note: string | null
   document_type: string | null
   identity_document: string | null
+  first_name?: string | null
+  last_name?: string | null
   birth_city: string | null
   birth_date: string | null
   created_at: string | null
@@ -46,6 +48,8 @@ function mapMovement(item: StockMovementApi): StockMovement {
     note: item.note,
     documentType: item.document_type,
     identityDocument: item.identity_document,
+    firstName: item.first_name ?? null,
+    lastName: item.last_name ?? null,
     birthCity: item.birth_city,
     birthDate: item.birth_date,
     createdAt: item.created_at,
@@ -85,6 +89,8 @@ export class HttpStockMovementRepository implements StockMovementRepository {
           note: input.note ?? null,
           document_type: input.documentType ?? null,
           identity_document: input.identityDocument ?? null,
+          first_name: input.firstName ?? null,
+          last_name: input.lastName ?? null,
           birth_city: input.birthCity ?? null,
           birth_date: input.birthDate ?? null,
         }),

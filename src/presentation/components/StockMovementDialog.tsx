@@ -1,4 +1,4 @@
-import { ArrowDownToLine, ArrowUpFromLine, Calendar, Hash, IdCard, MapPin, StickyNote } from "lucide-react"
+import { ArrowDownToLine, ArrowUpFromLine, Hash, IdCard, MapPin, StickyNote, User } from "lucide-react"
 import { useEffect, useState, type FormEvent } from "react"
 import type { Medication } from "@/domain/entities/medication"
 import {
@@ -7,6 +7,7 @@ import {
   type StockMovementInput,
 } from "@/domain/entities/stock-movement"
 import { Button } from "@/shared/ui/button"
+import { DatePicker } from "@/shared/ui/date-picker"
 import {
   Dialog,
   DialogContent,
@@ -45,6 +46,8 @@ export function StockMovementDialog({
   const [note, setNote] = useState("")
   const [documentType, setDocumentType] = useState("none")
   const [identityDocument, setIdentityDocument] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
   const [birthCity, setBirthCity] = useState("")
   const [birthDate, setBirthDate] = useState("")
   const [saving, setSaving] = useState(false)
@@ -62,6 +65,8 @@ export function StockMovementDialog({
     setNote("")
     setDocumentType("none")
     setIdentityDocument("")
+    setFirstName("")
+    setLastName("")
     setBirthCity("")
     setBirthDate("")
     setError(null)
@@ -85,6 +90,8 @@ export function StockMovementDialog({
         note: note.trim() || null,
         documentType: isOut && documentType !== "none" ? documentType : null,
         identityDocument: isOut ? identityDocument.trim() || null : null,
+        firstName: isOut ? firstName.trim() || null : null,
+        lastName: isOut ? lastName.trim() || null : null,
         birthCity: isOut ? birthCity.trim() || null : null,
         birthDate: isOut ? birthDate || null : null,
       })
@@ -136,6 +143,30 @@ export function StockMovementDialog({
                   <p className="text-sm font-medium">Datos de quien recibe</p>
                   <p className="text-xs text-muted-foreground">Opcional. Sirve para saber a quién se entregó.</p>
                 </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="grid gap-2">
+                    <Label htmlFor="recipient-first-name">Nombres</Label>
+                    <Input
+                      id="recipient-first-name"
+                      icon={User}
+                      autoComplete="given-name"
+                      placeholder="Ej. Ana María"
+                      value={firstName}
+                      onChange={(event) => setFirstName(event.target.value)}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="recipient-last-name">Apellidos</Label>
+                    <Input
+                      id="recipient-last-name"
+                      icon={User}
+                      autoComplete="family-name"
+                      placeholder="Ej. Gómez Pérez"
+                      value={lastName}
+                      onChange={(event) => setLastName(event.target.value)}
+                    />
+                  </div>
+                </div>
                 <div className="grid gap-2">
                   <Label>Tipo de documento</Label>
                   <Select value={documentType} onValueChange={setDocumentType}>
@@ -177,12 +208,12 @@ export function StockMovementDialog({
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="recipient-birthdate">Fecha de nacimiento</Label>
-                    <Input
+                    <DatePicker
                       id="recipient-birthdate"
-                      icon={Calendar}
-                      type="date"
                       value={birthDate}
-                      onChange={(event) => setBirthDate(event.target.value)}
+                      onChange={setBirthDate}
+                      placeholder="Selecciona una fecha"
+                      toDate={new Date()}
                     />
                   </div>
                 </div>

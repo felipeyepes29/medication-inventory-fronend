@@ -25,6 +25,8 @@ export interface StockMovement {
   note: string | null
   documentType: string | null
   identityDocument: string | null
+  firstName: string | null
+  lastName: string | null
   birthCity: string | null
   birthDate: string | null
   createdAt: string | null
@@ -36,6 +38,8 @@ export interface StockMovementInput {
   note?: string | null
   documentType?: string | null
   identityDocument?: string | null
+  firstName?: string | null
+  lastName?: string | null
   birthCity?: string | null
   birthDate?: string | null
 }
@@ -63,10 +67,11 @@ export function formatBirthDate(value: string | null): string | null {
 }
 
 export function formatRecipient(item: StockMovement): string | null {
-  const typeLabel = DOCUMENT_TYPES.find((entry) => entry.value === item.documentType)?.label
+  const fullName = [item.firstName, item.lastName].filter(Boolean).join(" ")
   const document = [item.documentType, item.identityDocument].filter(Boolean).join(" ")
   const parts = [
-    document || typeLabel || null,
+    fullName || null,
+    document || null,
     item.birthCity,
     formatBirthDate(item.birthDate),
   ].filter((part): part is string => Boolean(part))

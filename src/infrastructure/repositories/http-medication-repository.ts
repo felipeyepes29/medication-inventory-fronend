@@ -11,6 +11,7 @@ interface MedicationApi {
   id: number
   site_id: number
   site_name: string | null
+  site_address?: string | null
   position: number
   name: string
   quantity: number
@@ -34,6 +35,7 @@ function mapMedication(item: MedicationApi): Medication {
     id: item.id,
     siteId: item.site_id,
     siteName: item.site_name,
+    siteAddress: item.site_address ?? null,
     position: item.position,
     name: item.name,
     quantity: item.quantity,

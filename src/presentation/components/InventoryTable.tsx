@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import type { ReactNode } from "react"
 import type { Medication, SortField, SortOrder } from "@/domain/entities/medication"
+import { cn } from "@/shared/lib/utils"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
 import {
@@ -61,6 +62,25 @@ function availabilityBadge(quantity: number) {
     return <Badge variant="success">Disponible</Badge>
   }
   return <Badge variant="danger">Agotado</Badge>
+}
+
+function SiteCell({
+  name,
+  address,
+  showAddress,
+}: {
+  name: string | null
+  address: string | null
+  showAddress: boolean
+}) {
+  return (
+    <div className="min-w-0">
+      <p>{name ?? "—"}</p>
+      {showAddress && address ? (
+        <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{address}</p>
+      ) : null}
+    </div>
+  )
 }
 
 interface InventoryTableProps {
@@ -173,9 +193,17 @@ function MedicationActions({
   )
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+function Field({
+  label,
+  children,
+  className,
+}: {
+  label: string
+  children: ReactNode
+  className?: string
+}) {
   return (
-    <div className="min-w-0">
+    <div className={cn("min-w-0", className)}>
       <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </dt>
@@ -241,13 +269,27 @@ export function InventoryTable({
 
             <dl className="mt-4 grid grid-cols-2 gap-3">
               {showSite ? (
-                <Field label="Sede">{item.siteName ?? "—"}</Field>
+                <div className="col-span-2 min-w-0">
+                  <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                    Sede
+                  </dt>
+                  <dd className="mt-0.5 text-sm text-foreground">
+                    <SiteCell
+                      name={item.siteName}
+                      address={item.siteAddress}
+                      showAddress={readOnly}
+                    />
+                  </dd>
+                </div>
               ) : null}
-              <Field label={readOnly ? "Disponibilidad" : "Cantidad"}>
-                {readOnly ? availabilityBadge(item.quantity) : item.quantity}
+              <Field label="Caja" className={readOnly ? "col-span-2" : undefined}>
+                {item.box ?? "—"}
               </Field>
-              <Field label="Caja">{item.box ?? "—"}</Field>
-              <div className="col-span-2 min-w-0">
+              {readOnly ? null : <Field label="Cantidad">{item.quantity}</Field>}
+              {readOnly ? (
+                <Field label="Disponibilidad">{availabilityBadge(item.quantity)}</Field>
+              ) : null}
+              <div className={readOnly ? "min-w-0" : "col-span-2 min-w-0"}>
                 <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                   Vencimiento
                 </dt>
@@ -299,7 +341,13 @@ export function InventoryTable({
                 <TableCell className="tabular-nums text-muted-foreground">{item.position}</TableCell>
                 <TableCell className="font-medium">{item.name}</TableCell>
                 {showSite ? (
-                  <TableCell className="text-muted-foreground">{item.siteName ?? "—"}</TableCell>
+                  <TableCell>
+                    <SiteCell
+                      name={item.siteName}
+                      address={item.siteAddress}
+                      showAddress={readOnly}
+                    />
+                  </TableCell>
                 ) : null}
                 <TableCell>
                   {readOnly ? availabilityBadge(item.quantity) : item.quantity}

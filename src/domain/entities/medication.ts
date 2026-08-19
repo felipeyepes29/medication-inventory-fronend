@@ -6,6 +6,7 @@ export interface Medication {
   id: number
   siteId: number
   siteName: string | null
+  siteAddress: string | null
   position: number
   name: string
   quantity: number

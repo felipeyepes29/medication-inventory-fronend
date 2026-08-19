@@ -79,7 +79,7 @@ export function UserMenu() {
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
             {letters}
           </span>
-          <span className="min-w-0 text-left leading-tight">
+          <span className="hidden min-w-0 text-left leading-tight lg:block">
             <span className="block max-w-[160px] truncate text-sm font-medium text-foreground">
               {name}
             </span>
@@ -87,7 +87,7 @@ export function UserMenu() {
               {user.email}
             </span>
           </span>
-          <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <ChevronDown className="hidden h-4 w-4 shrink-0 text-muted-foreground lg:block" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
