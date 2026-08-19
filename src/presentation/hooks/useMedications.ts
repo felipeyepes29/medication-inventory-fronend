@@ -17,7 +17,11 @@ function resolvePageSize(option: PageSizeOption): number {
   return option === "all" ? ALL_PAGE_SIZE : option
 }
 
-export function useMedications() {
+interface UseMedicationsOptions {
+  publicCatalog?: boolean
+}
+
+export function useMedications({ publicCatalog = false }: UseMedicationsOptions = {}) {
   const [items, setItems] = useState<Medication[]>([])
   const [brands, setBrands] = useState<string[]>([])
   const [boxes, setBoxes] = useState<string[]>([])
@@ -28,6 +32,7 @@ export function useMedications() {
   const [debouncedQ, setDebouncedQ] = useState("")
   const [brand, setBrand] = useState<string>("all")
   const [box, setBox] = useState<string>("all")
+  const [siteId, setSiteId] = useState<string>("all")
   const [expirationStatus, setExpirationStatus] = useState<ExpirationStatus>("all")
   const [sortBy, setSortBy] = useState<SortField>("position")
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc")
@@ -41,7 +46,7 @@ export function useMedications() {
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedQ, brand, box, expirationStatus, sortBy, sortOrder])
+  }, [debouncedQ, brand, box, siteId, expirationStatus, sortBy, sortOrder])
 
   const changePageSize = (value: PageSizeOption) => {
     setPageSizeOption(value)
@@ -57,6 +62,8 @@ export function useMedications() {
     setSortOrder("asc")
   }
 
+  const resolvedSiteId = siteId === "all" ? undefined : Number(siteId)
+
   const refresh = useCallback(async () => {
     setLoading(true)
     setError(null)
@@ -67,14 +74,16 @@ export function useMedications() {
           q: debouncedQ || undefined,
           brand: brand === "all" ? undefined : brand,
           box: box === "all" ? undefined : box,
+          siteId: resolvedSiteId,
           expirationStatus,
           sortBy,
           sortOrder,
           page: pageSizeOption === "all" ? 1 : page,
           pageSize,
+          skipAuth: publicCatalog,
         }),
-        medicationUseCases.listBrands(),
-        medicationUseCases.listBoxes(),
+        medicationUseCases.listBrands(resolvedSiteId, publicCatalog),
+        medicationUseCases.listBoxes(resolvedSiteId, publicCatalog),
       ])
       setItems(listResult.items)
       setTotal(listResult.total)
@@ -85,7 +94,18 @@ export function useMedications() {
     } finally {
       setLoading(false)
     }
-  }, [brand, box, debouncedQ, expirationStatus, page, pageSizeOption, sortBy, sortOrder])
+  }, [
+    brand,
+    box,
+    debouncedQ,
+    expirationStatus,
+    page,
+    pageSizeOption,
+    publicCatalog,
+    resolvedSiteId,
+    sortBy,
+    sortOrder,
+  ])
 
   useEffect(() => {
     void refresh()
@@ -115,6 +135,7 @@ export function useMedications() {
     setQ("")
     setBrand("all")
     setBox("all")
+    setSiteId("all")
     setExpirationStatus("all")
     setPage(1)
   }
@@ -135,6 +156,8 @@ export function useMedications() {
     setBrand,
     box,
     setBox,
+    siteId,
+    setSiteId,
     expirationStatus,
     setExpirationStatus,
     sortBy,

@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown, Search, Tag } from "lucide-react"
 import { cn } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
 import { Input } from "@/shared/ui/input"
@@ -58,10 +58,13 @@ export function SearchSelect({
         aria-expanded={open}
         aria-controls={listId}
       >
-        <span className={cn("truncate", !value && "text-muted-foreground")}>
-          {value || placeholder}
+        <span className="flex min-w-0 items-center gap-2">
+          <Tag className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <span className={cn("truncate", !value && "text-muted-foreground")}>
+            {value || placeholder}
+          </span>
         </span>
-        <ChevronsUpDown className="h-4 w-4 opacity-50" />
+        <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
       </Button>
 
       {open ? (
@@ -69,6 +72,7 @@ export function SearchSelect({
           <div className="border-b p-2">
             <Input
               autoFocus
+              icon={Search}
               placeholder="Buscar marca..."
               value={query}
               onChange={(event) => setQuery(event.target.value)}

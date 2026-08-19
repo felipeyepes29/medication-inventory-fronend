@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react"
+import type { LucideIcon } from "lucide-react"
 import { cn } from "@/shared/lib/utils"
 import { Input } from "@/shared/ui/input"
 
@@ -9,6 +10,7 @@ interface AutocompleteInputProps {
   onChange: (value: string) => void
   placeholder?: string
   disabled?: boolean
+  icon?: LucideIcon
 }
 
 export function AutocompleteInput({
@@ -18,6 +20,7 @@ export function AutocompleteInput({
   onChange,
   placeholder,
   disabled = false,
+  icon,
 }: AutocompleteInputProps) {
   const listId = useId()
   const rootRef = useRef<HTMLDivElement>(null)
@@ -46,6 +49,7 @@ export function AutocompleteInput({
     <div ref={rootRef} className="relative">
       <Input
         id={id}
+        icon={icon}
         disabled={disabled}
         placeholder={placeholder}
         value={value}

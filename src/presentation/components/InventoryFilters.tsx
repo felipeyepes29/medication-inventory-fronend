@@ -1,5 +1,14 @@
 import { useMemo, useState } from "react"
-import { ChevronDown, SlidersHorizontal } from "lucide-react"
+import {
+  Box,
+  Building2,
+  CalendarClock,
+  ChevronDown,
+  FilterX,
+  Search,
+  SlidersHorizontal,
+  Tag,
+} from "lucide-react"
 import type { ExpirationStatus } from "@/domain/entities/medication"
 import { cn } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
@@ -24,6 +33,9 @@ interface InventoryFiltersProps {
   expirationStatus: ExpirationStatus
   onExpirationStatusChange: (value: ExpirationStatus) => void
   onClear: () => void
+  siteId?: string
+  sites?: { id: number; name: string }[]
+  onSiteChange?: (value: string) => void
 }
 
 export function InventoryFilters({
@@ -38,15 +50,20 @@ export function InventoryFilters({
   expirationStatus,
   onExpirationStatusChange,
   onClear,
+  siteId,
+  sites,
+  onSiteChange,
 }: InventoryFiltersProps) {
+  const showSites = Boolean(sites && onSiteChange && siteId !== undefined)
   const activeCount = useMemo(() => {
     let count = 0
     if (q.trim()) count += 1
     if (brand !== "all") count += 1
     if (box !== "all") count += 1
     if (expirationStatus !== "all") count += 1
+    if (showSites && siteId !== "all") count += 1
     return count
-  }, [brand, box, expirationStatus, q])
+  }, [brand, box, expirationStatus, q, showSites, siteId])
 
   const [open, setOpen] = useState(activeCount > 0)
 
@@ -69,7 +86,7 @@ export function InventoryFilters({
             ) : null}
           </div>
           <p className="mt-1 hidden text-sm text-muted-foreground lg:block">
-            Refina por nombre, marca, caja o vencimiento.
+            Refina por nombre, marca, caja, sede o vencimiento.
           </p>
         </div>
         <ChevronDown
@@ -92,6 +109,7 @@ export function InventoryFilters({
           </label>
           <Input
             id="search"
+            icon={Search}
             className="min-w-0"
             placeholder="Nombre, marca..."
             value={q}
@@ -104,6 +122,7 @@ export function InventoryFilters({
             <span className="text-sm font-medium text-muted-foreground">Marca</span>
             <Select value={brand} onValueChange={onBrandChange}>
               <SelectTrigger className="min-w-0">
+                <Tag className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <SelectValue placeholder="Todas" />
               </SelectTrigger>
               <SelectContent>
@@ -117,10 +136,31 @@ export function InventoryFilters({
             </Select>
           </div>
 
+          {showSites ? (
+            <div className="min-w-0 space-y-1.5">
+              <span className="text-sm font-medium text-muted-foreground">Sede</span>
+              <Select value={siteId} onValueChange={onSiteChange}>
+                <SelectTrigger className="min-w-0">
+                  <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <SelectValue placeholder="Todas" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  {sites?.map((item) => (
+                    <SelectItem key={item.id} value={String(item.id)}>
+                      {item.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
+
           <div className="min-w-0 space-y-1.5">
             <span className="text-sm font-medium text-muted-foreground">Caja</span>
             <Select value={box} onValueChange={onBoxChange}>
               <SelectTrigger className="min-w-0">
+                <Box className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <SelectValue placeholder="Todas" />
               </SelectTrigger>
               <SelectContent>
@@ -141,6 +181,7 @@ export function InventoryFilters({
               onValueChange={(value) => onExpirationStatusChange(value as ExpirationStatus)}
             >
               <SelectTrigger className="min-w-0">
+                <CalendarClock className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <SelectValue placeholder="Estado" />
               </SelectTrigger>
               <SelectContent>
@@ -154,6 +195,7 @@ export function InventoryFilters({
         </div>
 
         <Button type="button" variant="outline" className="w-full" onClick={onClear}>
+          <FilterX className="h-4 w-4" />
           Limpiar filtros
         </Button>
       </div>

@@ -1,6 +1,11 @@
+import { ArrowDownToLine, ArrowUpFromLine, Calendar, Hash, IdCard, MapPin, StickyNote } from "lucide-react"
 import { useEffect, useState, type FormEvent } from "react"
 import type { Medication } from "@/domain/entities/medication"
-import type { MovementType } from "@/domain/entities/stock-movement"
+import {
+  DOCUMENT_TYPES,
+  type MovementType,
+  type StockMovementInput,
+} from "@/domain/entities/stock-movement"
 import { Button } from "@/shared/ui/button"
 import {
   Dialog,
@@ -12,17 +17,21 @@ import {
 } from "@/shared/ui/dialog"
 import { Input } from "@/shared/ui/input"
 import { Label } from "@/shared/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/ui/select"
+import { Separator } from "@/shared/ui/separator"
 
 interface StockMovementDialogProps {
   open: boolean
   medication: Medication | null
   movementType: MovementType
   onOpenChange: (open: boolean) => void
-  onSubmit: (input: {
-    movementType: MovementType
-    quantity: number
-    note: string | null
-  }) => Promise<void>
+  onSubmit: (input: StockMovementInput) => Promise<void>
 }
 
 export function StockMovementDialog({
@@ -34,19 +43,27 @@ export function StockMovementDialog({
 }: StockMovementDialogProps) {
   const [quantity, setQuantity] = useState("")
   const [note, setNote] = useState("")
+  const [documentType, setDocumentType] = useState("none")
+  const [identityDocument, setIdentityDocument] = useState("")
+  const [birthCity, setBirthCity] = useState("")
+  const [birthDate, setBirthDate] = useState("")
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const isOut = movementType === "out"
   const title = isOut ? "Registrar salida" : "Registrar entrada"
   const description = isOut
-    ? "Descuenta unidades del inventario y deja registro de lo que se usó."
+    ? "Descuenta unidades del inventario. Si quieres, registra a quién se le entregó."
     : "Suma unidades al inventario y deja registro de lo que llegó."
 
   useEffect(() => {
     if (!open) return
     setQuantity("")
     setNote("")
+    setDocumentType("none")
+    setIdentityDocument("")
+    setBirthCity("")
+    setBirthDate("")
     setError(null)
   }, [open, movementType, medication?.id])
 
@@ -66,6 +83,10 @@ export function StockMovementDialog({
         movementType,
         quantity: value,
         note: note.trim() || null,
+        documentType: isOut && documentType !== "none" ? documentType : null,
+        identityDocument: isOut ? identityDocument.trim() || null : null,
+        birthCity: isOut ? birthCity.trim() || null : null,
+        birthDate: isOut ? birthDate || null : null,
       })
       onOpenChange(false)
     } catch (err) {
@@ -77,7 +98,7 @@ export function StockMovementDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
@@ -97,6 +118,7 @@ export function StockMovementDialog({
             <Label htmlFor="movement-quantity">Cantidad</Label>
             <Input
               id="movement-quantity"
+              icon={Hash}
               type="number"
               min={1}
               required
@@ -106,11 +128,75 @@ export function StockMovementDialog({
             />
           </div>
 
+          {isOut ? (
+            <>
+              <Separator />
+              <div className="grid gap-3">
+                <div>
+                  <p className="text-sm font-medium">Datos de quien recibe</p>
+                  <p className="text-xs text-muted-foreground">Opcional. Sirve para saber a quién se entregó.</p>
+                </div>
+                <div className="grid gap-2">
+                  <Label>Tipo de documento</Label>
+                  <Select value={documentType} onValueChange={setDocumentType}>
+                    <SelectTrigger>
+                      <IdCard className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <SelectValue placeholder="Sin especificar" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Sin especificar</SelectItem>
+                      {DOCUMENT_TYPES.map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          {item.value} — {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="recipient-document">Documento de identidad</Label>
+                  <Input
+                    id="recipient-document"
+                    icon={IdCard}
+                    inputMode="numeric"
+                    placeholder="Ej. 1023456789"
+                    value={identityDocument}
+                    onChange={(event) => setIdentityDocument(event.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="grid gap-2">
+                    <Label htmlFor="recipient-city">Ciudad de nacimiento</Label>
+                    <Input
+                      id="recipient-city"
+                      icon={MapPin}
+                      placeholder="Ej. Bogotá"
+                      value={birthCity}
+                      onChange={(event) => setBirthCity(event.target.value)}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="recipient-birthdate">Fecha de nacimiento</Label>
+                    <Input
+                      id="recipient-birthdate"
+                      icon={Calendar}
+                      type="date"
+                      value={birthDate}
+                      onChange={(event) => setBirthDate(event.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+              <Separator />
+            </>
+          ) : null}
+
           <div className="grid gap-2">
             <Label htmlFor="movement-note">Nota (opcional)</Label>
             <Input
               id="movement-note"
-              placeholder={isOut ? "Ej. Consumo diario" : "Ej. Compra farmacia"}
+              icon={StickyNote}
+              placeholder={isOut ? "Ej. Entrega a usuario" : "Ej. Compra farmacia"}
               value={note}
               onChange={(event) => setNote(event.target.value)}
             />
@@ -123,6 +209,7 @@ export function StockMovementDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={saving} variant={isOut ? "destructive" : "default"}>
+              {isOut ? <ArrowUpFromLine className="h-4 w-4" /> : <ArrowDownToLine className="h-4 w-4" />}
               {saving ? "Guardando..." : isOut ? "Descontar" : "Agregar stock"}
             </Button>
           </DialogFooter>

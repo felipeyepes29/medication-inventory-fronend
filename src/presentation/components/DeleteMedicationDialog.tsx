@@ -1,3 +1,4 @@
+import { Trash2 } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,6 +43,7 @@ export function DeleteMedicationDialog({
               void onConfirm()
             }}
           >
+            <Trash2 className="h-4 w-4" />
             Eliminar
           </AlertDialogAction>
         </AlertDialogFooter>

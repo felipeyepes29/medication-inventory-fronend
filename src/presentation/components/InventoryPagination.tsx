@@ -1,3 +1,4 @@
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { PageSizeOption } from "@/presentation/hooks/useMedications"
 import { Button } from "@/shared/ui/button"
 import {
@@ -102,6 +103,7 @@ export function InventoryPagination({
             disabled={page <= 1 || pageSizeOption === "all"}
             onClick={() => onPageChange(page - 1)}
           >
+            <ChevronLeft className="h-4 w-4" />
             Anterior
           </Button>
 
@@ -149,6 +151,7 @@ export function InventoryPagination({
             onClick={() => onPageChange(page + 1)}
           >
             Siguiente
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </div>

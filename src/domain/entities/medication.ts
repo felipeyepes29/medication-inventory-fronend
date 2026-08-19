@@ -4,6 +4,8 @@ export type SortOrder = "asc" | "desc"
 
 export interface Medication {
   id: number
+  siteId: number
+  siteName: string | null
   position: number
   name: string
   quantity: number
@@ -19,11 +21,13 @@ export interface MedicationFilters {
   q?: string
   brand?: string
   box?: string
+  siteId?: number
   expirationStatus?: ExpirationStatus
   sortBy?: SortField
   sortOrder?: SortOrder
   page?: number
   pageSize?: number
+  skipAuth?: boolean
 }
 
 export interface PaginatedMedications {
@@ -35,6 +39,7 @@ export interface PaginatedMedications {
 
 export interface MedicationInput {
   position?: number | null
+  siteId?: number | null
   name: string
   quantity: number
   concentration: string

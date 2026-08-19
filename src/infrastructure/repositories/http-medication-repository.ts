@@ -9,6 +9,8 @@ import { apiClient } from "@/infrastructure/http/api-client"
 
 interface MedicationApi {
   id: number
+  site_id: number
+  site_name: string | null
   position: number
   name: string
   quantity: number
@@ -30,6 +32,8 @@ interface PaginatedApi {
 function mapMedication(item: MedicationApi): Medication {
   return {
     id: item.id,
+    siteId: item.site_id,
+    siteName: item.site_name,
     position: item.position,
     name: item.name,
     quantity: item.quantity,
@@ -48,6 +52,7 @@ export class HttpMedicationRepository implements MedicationRepository {
     if (filters.q) params.set("q", filters.q)
     if (filters.brand) params.set("brand", filters.brand)
     if (filters.box) params.set("box", filters.box)
+    if (filters.siteId) params.set("site_id", String(filters.siteId))
     if (filters.expirationStatus) {
       params.set("expiration_status", filters.expirationStatus)
     }
@@ -56,7 +61,9 @@ export class HttpMedicationRepository implements MedicationRepository {
     params.set("page", String(filters.page ?? 1))
     params.set("page_size", String(filters.pageSize ?? 100))
 
-    const data = await apiClient<PaginatedApi>(`/api/medications?${params}`)
+    const data = await apiClient<PaginatedApi>(`/api/medications?${params}`, {
+      skipAuth: filters.skipAuth,
+    })
     return {
       items: data.items.map(mapMedication),
       total: data.total,
@@ -75,8 +82,14 @@ export class HttpMedicationRepository implements MedicationRepository {
     return data.position
   }
 
-  async listBoxes(): Promise<string[]> {
-    const data = await apiClient<{ boxes: string[] }>("/api/medications/boxes")
+  async listBoxes(siteId?: number, skipAuth?: boolean): Promise<string[]> {
+    const params = new URLSearchParams()
+    if (siteId) params.set("site_id", String(siteId))
+    const query = params.toString()
+    const data = await apiClient<{ boxes: string[] }>(
+      `/api/medications/boxes${query ? `?${query}` : ""}`,
+      { skipAuth },
+    )
     return data.boxes
   }
 
@@ -85,6 +98,7 @@ export class HttpMedicationRepository implements MedicationRepository {
       method: "POST",
       body: JSON.stringify({
         position: input.position ?? null,
+        site_id: input.siteId ?? null,
         name: input.name,
         quantity: input.quantity,
         concentration: input.concentration,
@@ -116,8 +130,14 @@ export class HttpMedicationRepository implements MedicationRepository {
     await apiClient<void>(`/api/medications/${id}`, { method: "DELETE" })
   }
 
-  async listBrands(): Promise<string[]> {
-    const data = await apiClient<{ brands: string[] }>("/api/medications/brands")
+  async listBrands(siteId?: number, skipAuth?: boolean): Promise<string[]> {
+    const params = new URLSearchParams()
+    if (siteId) params.set("site_id", String(siteId))
+    const query = params.toString()
+    const data = await apiClient<{ brands: string[] }>(
+      `/api/medications/brands${query ? `?${query}` : ""}`,
+      { skipAuth },
+    )
     return data.brands
   }
 }

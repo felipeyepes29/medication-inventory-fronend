@@ -26,20 +26,23 @@ export function setUnauthorizedHandler(handler: UnauthorizedHandler | null) {
 
 export async function apiClient<T>(
   path: string,
-  options: RequestInit = {},
+  options: RequestInit & { skipAuth?: boolean } = {},
 ): Promise<T> {
-  const headers = new Headers(options.headers)
+  const { skipAuth, ...init } = options
+  const headers = new Headers(init.headers)
   if (!headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json")
   }
 
-  const token = getAccessToken()
-  if (token) {
-    headers.set("Authorization", `Bearer ${token}`)
+  if (!skipAuth) {
+    const token = getAccessToken()
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`)
+    }
   }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
+    ...init,
     headers,
   })
 

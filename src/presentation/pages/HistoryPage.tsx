@@ -1,8 +1,15 @@
 import { useCallback, useEffect, useState } from "react"
+import { ArrowLeft, ArrowDownToLine, ArrowUpFromLine, Building2, ChevronLeft, ChevronRight, List } from "lucide-react"
+import { Link } from "react-router-dom"
 import { stockMovementUseCases } from "@/application/composition"
-import type { MovementType, StockMovement } from "@/domain/entities/stock-movement"
+import type { Site } from "@/domain/entities/auth"
+import { formatRecipient, type MovementType, type StockMovement } from "@/domain/entities/stock-movement"
+import { listSites } from "@/infrastructure/repositories/http-site-repository"
+import { useAuth } from "@/presentation/hooks/useAuth"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
+import { Label } from "@/shared/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/shared/ui/radio-group"
 import {
   Select,
   SelectContent,
@@ -19,10 +26,6 @@ import {
   TableRow,
 } from "@/shared/ui/table"
 
-interface HistoryPageProps {
-  onBack: () => void
-}
-
 function formatDate(value: string | null): string {
   if (!value) return "—"
   return new Date(value).toLocaleString("es-CO", {
@@ -33,15 +36,20 @@ function formatDate(value: string | null): string {
 
 type TypeFilter = "all" | MovementType
 
-export function HistoryPage({ onBack }: HistoryPageProps) {
+export function HistoryPage() {
+  const { user } = useAuth()
+  const isSuperAdmin = user?.role === "super_admin"
   const [items, setItems] = useState<StockMovement[]>([])
+  const [sites, setSites] = useState<Site[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>("out")
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all")
+  const [siteFilter, setSiteFilter] = useState("all")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const pageSize = 30
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
+  const showSite = isSuperAdmin
 
   const refresh = useCallback(async () => {
     setLoading(true)
@@ -49,6 +57,7 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
     try {
       const result = await stockMovementUseCases.list({
         movementType: typeFilter === "all" ? undefined : typeFilter,
+        siteId: isSuperAdmin && siteFilter !== "all" ? Number(siteFilter) : undefined,
         page,
         pageSize,
       })
@@ -59,19 +68,24 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
     } finally {
       setLoading(false)
     }
-  }, [page, typeFilter])
+  }, [isSuperAdmin, page, siteFilter, typeFilter])
+
+  useEffect(() => {
+    if (!isSuperAdmin) return
+    void listSites({ includeInactive: true }).then(setSites).catch(() => setSites([]))
+  }, [isSuperAdmin])
 
   useEffect(() => {
     setPage(1)
-  }, [typeFilter])
+  }, [siteFilter, typeFilter])
 
   useEffect(() => {
     void refresh()
   }, [refresh])
 
   return (
-    <main className="min-h-screen overflow-x-hidden" style={{ backgroundImage: "var(--page-gradient)" }}>
-      <div className="mx-auto flex w-full max-w-[1100px] min-w-0 flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
+    <main className="overflow-x-hidden">
+      <div className="mx-auto flex w-full max-w-[1200px] min-w-0 flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-2">
             <p className="text-sm font-semibold uppercase tracking-[0.12em] text-primary">
@@ -85,27 +99,64 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
               {typeFilter === "out" ? " de salidas" : typeFilter === "in" ? " de entradas" : ""}
             </p>
           </div>
-          <Button type="button" variant="outline" onClick={onBack}>
-            Volver al inventario
+          <Button asChild type="button" variant="outline">
+            <Link to="/app">
+              <ArrowLeft className="h-4 w-4" />
+              Volver al inventario
+            </Link>
           </Button>
         </header>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="w-full sm:w-56">
-            <Select
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex flex-col gap-2">
+            <Label className="text-muted-foreground">Tipo de movimiento</Label>
+            <RadioGroup
               value={typeFilter}
               onValueChange={(value) => setTypeFilter(value as TypeFilter)}
+              className="flex flex-wrap gap-x-5 gap-y-2"
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Tipo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="out">Solo salidas</SelectItem>
-                <SelectItem value="in">Solo entradas</SelectItem>
-                <SelectItem value="all">Todos</SelectItem>
-              </SelectContent>
-            </Select>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="all" id="history-all" />
+                <Label htmlFor="history-all" className="inline-flex cursor-pointer items-center gap-1.5 font-normal">
+                  <List className="h-3.5 w-3.5" />
+                  Todos
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="in" id="history-in" />
+                <Label htmlFor="history-in" className="inline-flex cursor-pointer items-center gap-1.5 font-normal">
+                  <ArrowDownToLine className="h-3.5 w-3.5" />
+                  Entradas
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="out" id="history-out" />
+                <Label htmlFor="history-out" className="inline-flex cursor-pointer items-center gap-1.5 font-normal">
+                  <ArrowUpFromLine className="h-3.5 w-3.5" />
+                  Salidas
+                </Label>
+              </div>
+            </RadioGroup>
           </div>
+          {showSite ? (
+            <div className="grid w-full gap-2 sm:w-64">
+              <Label className="text-muted-foreground">Sede</Label>
+              <Select value={siteFilter} onValueChange={setSiteFilter}>
+                <SelectTrigger>
+                  <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <SelectValue placeholder="Todas las sedes" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas las sedes</SelectItem>
+                  {sites.map((item) => (
+                    <SelectItem key={item.id} value={String(item.id)}>
+                      {item.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
         </div>
 
         {error ? (
@@ -123,7 +174,9 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
               No hay movimientos todavía.
             </li>
           ) : (
-            items.map((item) => (
+            items.map((item) => {
+              const recipient = formatRecipient(item)
+              return (
               <li key={item.id} className="rounded-xl border bg-card p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -131,6 +184,9 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
                     <h3 className="mt-0.5 font-semibold leading-snug">
                       {item.medicationName ?? `Medicamento #${item.medicationId}`}
                     </h3>
+                    {showSite && item.siteName ? (
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.siteName}</p>
+                    ) : null}
                   </div>
                   {item.movementType === "in" ? (
                     <Badge variant="success">Entrada</Badge>
@@ -158,8 +214,14 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
                 {item.note ? (
                   <p className="mt-2 truncate text-sm text-muted-foreground">{item.note}</p>
                 ) : null}
+                {recipient ? (
+                  <p className="mt-1 truncate text-sm text-muted-foreground">
+                    Entregado a: {recipient}
+                  </p>
+                ) : null}
               </li>
-            ))
+              )
+            })
           )}
         </ul>
 
@@ -177,11 +239,13 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
                 <TableRow>
                   <TableHead>Fecha</TableHead>
                   <TableHead>Medicamento</TableHead>
+                  {showSite ? <TableHead>Sede</TableHead> : null}
                   <TableHead>Tipo</TableHead>
                   <TableHead>Cantidad</TableHead>
                   <TableHead>Antes</TableHead>
                   <TableHead>Después</TableHead>
                   <TableHead>Nota</TableHead>
+                  <TableHead>Entregado a</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -191,6 +255,9 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
                     <TableCell className="font-medium">
                       {item.medicationName ?? `#${item.medicationId}`}
                     </TableCell>
+                    {showSite ? (
+                      <TableCell className="text-muted-foreground">{item.siteName || "—"}</TableCell>
+                    ) : null}
                     <TableCell>
                       {item.movementType === "in" ? (
                         <Badge variant="success">Entrada</Badge>
@@ -204,7 +271,10 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
                     </TableCell>
                     <TableCell>{item.previousQuantity}</TableCell>
                     <TableCell>{item.newQuantity}</TableCell>
-                    <TableCell className="max-w-[220px] truncate">{item.note || "—"}</TableCell>
+                    <TableCell className="max-w-[180px] truncate">{item.note || "—"}</TableCell>
+                    <TableCell className="max-w-[220px] truncate">
+                      {formatRecipient(item) || "—"}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -221,6 +291,7 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
               disabled={page <= 1}
               onClick={() => setPage((prev) => prev - 1)}
             >
+              <ChevronLeft className="h-4 w-4" />
               Anterior
             </Button>
             <span className="text-sm text-muted-foreground">
@@ -234,6 +305,7 @@ export function HistoryPage({ onBack }: HistoryPageProps) {
               onClick={() => setPage((prev) => prev + 1)}
             >
               Siguiente
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         ) : null}

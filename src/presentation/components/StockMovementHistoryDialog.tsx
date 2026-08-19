@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { stockMovementUseCases } from "@/application/composition"
 import type { Medication } from "@/domain/entities/medication"
-import type { StockMovement } from "@/domain/entities/stock-movement"
+import { formatRecipient, type StockMovement } from "@/domain/entities/stock-movement"
 import { Badge } from "@/shared/ui/badge"
 import { Button } from "@/shared/ui/button"
 import {
@@ -74,7 +74,7 @@ export function StockMovementHistoryDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>Historial de movimientos</DialogTitle>
           <DialogDescription>
@@ -106,6 +106,7 @@ export function StockMovementHistoryDialog({
                   <TableHead>Antes</TableHead>
                   <TableHead>Después</TableHead>
                   <TableHead>Nota</TableHead>
+                  <TableHead>Entregado a</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -125,8 +126,11 @@ export function StockMovementHistoryDialog({
                     </TableCell>
                     <TableCell>{item.previousQuantity}</TableCell>
                     <TableCell>{item.newQuantity}</TableCell>
-                    <TableCell className="max-w-[180px] truncate">
+                    <TableCell className="max-w-[160px] truncate">
                       {item.note || "—"}
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate">
+                      {formatRecipient(item) || "—"}
                     </TableCell>
                   </TableRow>
                 ))}

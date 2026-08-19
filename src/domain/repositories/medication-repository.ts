@@ -12,6 +12,6 @@ export interface MedicationRepository {
   create(input: MedicationInput): Promise<Medication>
   update(id: number, input: MedicationInput): Promise<Medication>
   delete(id: number): Promise<void>
-  listBrands(): Promise<string[]>
-  listBoxes(): Promise<string[]>
+  listBrands(siteId?: number, skipAuth?: boolean): Promise<string[]>
+  listBoxes(siteId?: number, skipAuth?: boolean): Promise<string[]>
 }

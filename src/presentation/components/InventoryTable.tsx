@@ -56,17 +56,26 @@ function expirationBadge(value: string | null) {
   return <Badge variant="success">{formatExpiration(value)}</Badge>
 }
 
+function availabilityBadge(quantity: number) {
+  if (quantity > 0) {
+    return <Badge variant="success">Disponible</Badge>
+  }
+  return <Badge variant="danger">Agotado</Badge>
+}
+
 interface InventoryTableProps {
   items: Medication[]
   loading: boolean
   sortBy: SortField
   sortOrder: SortOrder
   onSort: (field: SortField) => void
-  onEdit: (medication: Medication) => void
-  onDelete: (medication: Medication) => void
-  onStockIn: (medication: Medication) => void
-  onStockOut: (medication: Medication) => void
-  onHistory: (medication: Medication) => void
+  readOnly?: boolean
+  showSite?: boolean
+  onEdit?: (medication: Medication) => void
+  onDelete?: (medication: Medication) => void
+  onStockIn?: (medication: Medication) => void
+  onStockOut?: (medication: Medication) => void
+  onHistory?: (medication: Medication) => void
 }
 
 function SortableHead({
@@ -155,10 +164,7 @@ function MedicationActions({
           <Pencil className="h-4 w-4" />
           Editar
         </DropdownMenuItem>
-        <DropdownMenuItem
-          className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-          onSelect={() => onDelete(item)}
-        >
+        <DropdownMenuItem variant="destructive" onSelect={() => onDelete(item)}>
           <Trash2 className="h-4 w-4" />
           Eliminar
         </DropdownMenuItem>
@@ -184,6 +190,8 @@ export function InventoryTable({
   sortBy,
   sortOrder,
   onSort,
+  readOnly = false,
+  showSite = false,
   onEdit,
   onDelete,
   onStockIn,
@@ -198,7 +206,7 @@ export function InventoryTable({
     return <p className="py-10 text-center text-sm text-muted-foreground">No hay medicamentos.</p>
   }
 
-  const actions = { onEdit, onDelete, onStockIn, onStockOut, onHistory }
+  const canAct = Boolean(onEdit && onDelete && onStockIn && onStockOut && onHistory)
 
   return (
     <>
@@ -219,11 +227,25 @@ export function InventoryTable({
                   {item.concentration} · {item.brand}
                 </p>
               </div>
-              <MedicationActions item={item} {...actions} />
+              {!readOnly && canAct ? (
+                <MedicationActions
+                  item={item}
+                  onEdit={onEdit!}
+                  onDelete={onDelete!}
+                  onStockIn={onStockIn!}
+                  onStockOut={onStockOut!}
+                  onHistory={onHistory!}
+                />
+              ) : null}
             </div>
 
             <dl className="mt-4 grid grid-cols-2 gap-3">
-              <Field label="Cantidad">{item.quantity}</Field>
+              {showSite ? (
+                <Field label="Sede">{item.siteName ?? "—"}</Field>
+              ) : null}
+              <Field label={readOnly ? "Disponibilidad" : "Cantidad"}>
+                {readOnly ? availabilityBadge(item.quantity) : item.quantity}
+              </Field>
               <Field label="Caja">{item.box ?? "—"}</Field>
               <div className="col-span-2 min-w-0">
                 <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
@@ -250,8 +272,9 @@ export function InventoryTable({
                 className="w-28"
               />
               <TableHead>Medicamento</TableHead>
+              {showSite ? <TableHead>Sede</TableHead> : null}
               <SortableHead
-                label="Cantidad"
+                label={readOnly ? "Disponibilidad" : "Cantidad"}
                 field="quantity"
                 sortBy={sortBy}
                 sortOrder={sortOrder}
@@ -267,7 +290,7 @@ export function InventoryTable({
                 onSort={onSort}
               />
               <TableHead>Vencimiento</TableHead>
-              <TableHead className="w-16 text-center">Acciones</TableHead>
+              {!readOnly ? <TableHead className="w-16 text-center">Acciones</TableHead> : null}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -275,16 +298,30 @@ export function InventoryTable({
               <TableRow key={item.id}>
                 <TableCell className="tabular-nums text-muted-foreground">{item.position}</TableCell>
                 <TableCell className="font-medium">{item.name}</TableCell>
-                <TableCell>{item.quantity}</TableCell>
+                {showSite ? (
+                  <TableCell className="text-muted-foreground">{item.siteName ?? "—"}</TableCell>
+                ) : null}
+                <TableCell>
+                  {readOnly ? availabilityBadge(item.quantity) : item.quantity}
+                </TableCell>
                 <TableCell>{item.concentration}</TableCell>
                 <TableCell>{item.brand}</TableCell>
                 <TableCell className="text-muted-foreground">{item.box ?? "—"}</TableCell>
                 <TableCell>{expirationBadge(item.expirationDate)}</TableCell>
-                <TableCell className="p-2">
-                  <div className="flex justify-center">
-                    <MedicationActions item={item} {...actions} />
-                  </div>
-                </TableCell>
+                {!readOnly && canAct ? (
+                  <TableCell className="p-2">
+                    <div className="flex justify-center">
+                      <MedicationActions
+                        item={item}
+                        onEdit={onEdit!}
+                        onDelete={onDelete!}
+                        onStockIn={onStockIn!}
+                        onStockOut={onStockOut!}
+                        onHistory={onHistory!}
+                      />
+                    </div>
+                  </TableCell>
+                ) : null}
               </TableRow>
             ))}
           </TableBody>
