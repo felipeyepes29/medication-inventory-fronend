@@ -74,7 +74,7 @@ export function StockMovementHistoryDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="gap-5 sm:max-w-6xl">
         <DialogHeader>
           <DialogTitle>Historial de movimientos</DialogTitle>
           <DialogDescription>
@@ -96,47 +96,90 @@ export function StockMovementHistoryDialog({
         ) : null}
 
         {!loading && items.length > 0 ? (
-          <div className="max-h-[420px] overflow-auto rounded-lg border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Cantidad</TableHead>
-                  <TableHead>Antes</TableHead>
-                  <TableHead>Después</TableHead>
-                  <TableHead>Nota</TableHead>
-                  <TableHead>Entregado a</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {items.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>{formatDate(item.createdAt)}</TableCell>
-                    <TableCell>
+          <>
+            {/* Mobile cards */}
+            <ul className="grid max-h-[min(70vh,520px)] gap-3 overflow-y-auto md:hidden">
+              {items.map((item) => {
+                const recipient = formatRecipient(item)
+                return (
+                  <li key={item.id} className="rounded-xl border bg-card p-4 shadow-sm">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="text-xs text-muted-foreground">{formatDate(item.createdAt)}</p>
                       {item.movementType === "in" ? (
                         <Badge variant="success">Entrada</Badge>
                       ) : (
                         <Badge variant="danger">Salida</Badge>
                       )}
-                    </TableCell>
-                    <TableCell>
-                      {item.movementType === "in" ? "+" : "-"}
-                      {item.quantity}
-                    </TableCell>
-                    <TableCell>{item.previousQuantity}</TableCell>
-                    <TableCell>{item.newQuantity}</TableCell>
-                    <TableCell className="max-w-[160px] truncate">
-                      {item.note || "—"}
-                    </TableCell>
-                    <TableCell className="max-w-[200px] truncate">
-                      {formatRecipient(item) || "—"}
-                    </TableCell>
+                    </div>
+                    <dl className="mt-3 grid grid-cols-3 gap-2 text-sm">
+                      <div>
+                        <dt className="text-[11px] uppercase text-muted-foreground">Cantidad</dt>
+                        <dd className="font-medium">
+                          {item.movementType === "in" ? "+" : "-"}
+                          {item.quantity}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-[11px] uppercase text-muted-foreground">Antes</dt>
+                        <dd>{item.previousQuantity}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-[11px] uppercase text-muted-foreground">Después</dt>
+                        <dd>{item.newQuantity}</dd>
+                      </div>
+                    </dl>
+                    {item.note ? (
+                      <p className="mt-2 text-sm text-muted-foreground">{item.note}</p>
+                    ) : null}
+                    {recipient ? (
+                      <p className="mt-1 text-sm text-muted-foreground">Entregado a: {recipient}</p>
+                    ) : null}
+                  </li>
+                )
+              })}
+            </ul>
+
+            {/* Desktop table */}
+            <div className="hidden max-h-[min(70vh,560px)] overflow-auto rounded-lg border md:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Fecha</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>Cantidad</TableHead>
+                    <TableHead>Antes</TableHead>
+                    <TableHead>Después</TableHead>
+                    <TableHead>Nota</TableHead>
+                    <TableHead>Entregado a</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {items.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="whitespace-nowrap">{formatDate(item.createdAt)}</TableCell>
+                      <TableCell>
+                        {item.movementType === "in" ? (
+                          <Badge variant="success">Entrada</Badge>
+                        ) : (
+                          <Badge variant="danger">Salida</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {item.movementType === "in" ? "+" : "-"}
+                        {item.quantity}
+                      </TableCell>
+                      <TableCell>{item.previousQuantity}</TableCell>
+                      <TableCell>{item.newQuantity}</TableCell>
+                      <TableCell className="max-w-[220px] truncate">{item.note || "—"}</TableCell>
+                      <TableCell className="max-w-[260px] truncate">
+                        {formatRecipient(item) || "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         ) : null}
 
         <div className="flex justify-end">

@@ -44,11 +44,12 @@ export function TermsPage() {
           <section className="space-y-2">
             <h2 className="text-base font-semibold text-foreground">2. Alcance geográfico y sedes</h2>
             <p>
-              Por ahora la plataforma opera únicamente para el municipio de{" "}
-              <strong className="text-foreground">Sevilla, Valle del Cauca</strong>. La creación de
-              sedes y centros de acopio está controlada: no cualquiera puede abrir una sede. Quienes
-              administramos la plataforma nos reservamos el derecho de autorizar, rechazar o retirar
-              sedes según la necesidad de la emergencia.
+              Actualmente la plataforma opera principalmente para el municipio de{" "}
+              <strong className="text-foreground">Sevilla, Valle del Cauca</strong>, aunque estamos
+              evaluando expandir el servicio a más territorios según la evolución de la emergencia.
+              La creación de sedes y centros de acopio está controlada: no cualquiera puede abrir una
+              sede. Quienes administramos la plataforma nos reservamos el derecho de autorizar,
+              rechazar o retirar sedes según la necesidad de la emergencia.
             </p>
           </section>
 
