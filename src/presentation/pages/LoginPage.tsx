@@ -46,25 +46,33 @@ export function LoginPage() {
             <div className="space-y-1">
               <h1 className="text-xl font-semibold">Ingreso al inventario</h1>
               <p className="text-sm text-muted-foreground">
-                Usa tu usuario o correo, y la contraseña.
+                Puedes entrar con tu nombre de usuario o con tu correo electrónico.
               </p>
             </div>
             <ThemeToggle />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="login-identifier">Usuario o correo</Label>
+            <Label htmlFor="login-identifier">Usuario o correo electrónico</Label>
             <Input
               id="login-identifier"
+              name="username"
               icon={User}
               type="text"
+              inputMode="text"
               autoFocus
               autoComplete="username"
-              placeholder="usuario o correo@ejemplo.com"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              placeholder="admin o correo@ejemplo.com"
               value={identifier}
               onChange={(event) => setIdentifier(event.target.value)}
               required
             />
+            <p className="text-xs text-muted-foreground">
+              Admite ambos: nombre de usuario o correo.
+            </p>
           </div>
 
           <div className="space-y-2">

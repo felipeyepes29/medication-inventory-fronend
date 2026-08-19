@@ -28,9 +28,14 @@ export function mapUser(item: UserApi): AuthUser {
 
 export async function loginWithCredentials(identifier: string, password: string): Promise<AuthUser> {
   const login = identifier.trim()
+  const isEmail = login.includes("@")
   const data = await apiClient<{ access_token: string; user: UserApi }>("/api/auth/login", {
     method: "POST",
-    body: JSON.stringify({ login, email: login, password }),
+    body: JSON.stringify({
+      login,
+      ...(isEmail ? { email: login } : { username: login }),
+      password,
+    }),
     skipAuth: true,
   })
   setAccessToken(data.access_token)
