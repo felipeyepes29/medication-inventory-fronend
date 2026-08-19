@@ -15,7 +15,7 @@ import { setUnauthorizedHandler } from "@/infrastructure/http/api-client"
 interface AuthContextValue {
   user: AuthUser | null
   loading: boolean
-  login: (email: string, password: string) => Promise<void>
+  login: (identifier: string, password: string) => Promise<void>
   logout: () => void
   refreshUser: () => Promise<void>
 }
@@ -63,8 +63,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const login = useCallback(async (email: string, password: string) => {
-    const current = await loginWithCredentials(email, password)
+  const login = useCallback(async (identifier: string, password: string) => {
+    const current = await loginWithCredentials(identifier, password)
     setUser(current)
   }, [])
 

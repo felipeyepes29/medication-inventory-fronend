@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { ArrowLeft, Building2, KeyRound, Mail, Pencil, Plus, Save, Settings2 } from "lucide-react"
+import { ArrowLeft, Building2, KeyRound, Mail, Pencil, Plus, Save, Settings2, User } from "lucide-react"
 import type { ManagedUser, Site, UserRole } from "@/domain/entities/auth"
 import { listSites } from "@/infrastructure/repositories/http-site-repository"
 import {
@@ -60,6 +60,7 @@ export function UsersPage() {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<ManagedUser | null>(null)
   const [email, setEmail] = useState("")
+  const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [role, setRole] = useState<UserRole>("site_user")
   const [siteId, setSiteId] = useState("")
@@ -96,6 +97,7 @@ export function UsersPage() {
   const openCreate = () => {
     setEditing(null)
     setEmail("")
+    setUsername("")
     setPassword("")
     setRole("site_user")
     setSiteId("")
@@ -107,6 +109,7 @@ export function UsersPage() {
   const openEdit = (item: ManagedUser) => {
     setEditing(item)
     setEmail(item.email)
+    setUsername(item.username)
     setPassword("")
     setRole(item.role)
     setSiteId(item.siteId ? String(item.siteId) : "")
@@ -125,6 +128,7 @@ export function UsersPage() {
     setSaving(true)
     setFormError(null)
     try {
+      if (!username.trim()) throw new Error("El nombre de usuario es obligatorio")
       if (!email.trim()) throw new Error("El correo es obligatorio")
       if (!editing && password.length < 8) {
         throw new Error("La contraseña debe tener al menos 8 caracteres")
@@ -134,6 +138,7 @@ export function UsersPage() {
       }
       const payload = {
         email: email.trim(),
+        username: username.trim().toLowerCase(),
         role,
         siteId: role === "super_admin" ? null : Number(siteId),
         isActive: editing ? editing.isActive : isActive,
@@ -229,6 +234,7 @@ export function UsersPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Usuario</TableHead>
                 <TableHead>Correo</TableHead>
                 <TableHead>Rol</TableHead>
                 <TableHead>Sede</TableHead>
@@ -241,7 +247,8 @@ export function UsersPage() {
                 const isSelf = currentUser?.id === item.id
                 return (
                   <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.email}</TableCell>
+                    <TableCell className="font-medium">{item.username}</TableCell>
+                    <TableCell className="text-muted-foreground">{item.email}</TableCell>
                     <TableCell>
                       {item.role === "super_admin" ? "Super admin" : "Usuario de centro"}
                     </TableCell>
@@ -271,7 +278,7 @@ export function UsersPage() {
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            aria-label={`Acciones de ${item.email}`}
+                            aria-label={`Acciones de ${item.username}`}
                           >
                             <Settings2 className="h-4 w-4" />
                           </Button>
@@ -307,6 +314,20 @@ export function UsersPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-3">
+            <div className="grid gap-2">
+              <Label htmlFor="user-username">Nombre de usuario</Label>
+              <Input
+                id="user-username"
+                icon={User}
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                placeholder="ej. casacultura"
+                autoComplete="off"
+              />
+              <p className="text-xs text-muted-foreground">
+                3 a 32 caracteres. Letras, números, punto, guion o _.
+              </p>
+            </div>
             <div className="grid gap-2">
               <Label htmlFor="user-email">Correo</Label>
               <Input
@@ -417,7 +438,7 @@ export function UsersPage() {
             <DialogTitle>Cambiar contraseña</DialogTitle>
             <DialogDescription>
               {passwordUser
-                ? `Nueva contraseña para ${passwordUser.email}.`
+                ? `Nueva contraseña para ${passwordUser.username}.`
                 : "Elige una contraseña de al menos 8 caracteres."}
             </DialogDescription>
           </DialogHeader>

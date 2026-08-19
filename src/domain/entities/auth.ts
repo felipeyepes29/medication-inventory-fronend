@@ -3,6 +3,7 @@ export type UserRole = "super_admin" | "site_user"
 export interface AuthUser {
   id: number
   email: string
+  username: string
   role: UserRole
   siteId: number | null
   siteName: string | null
@@ -21,6 +22,7 @@ export interface Site {
 export interface ManagedUser {
   id: number
   email: string
+  username: string
   role: UserRole
   siteId: number | null
   siteName: string | null

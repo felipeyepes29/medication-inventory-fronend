@@ -17,6 +17,7 @@ import { Label } from "@/shared/ui/label"
 import { Switch } from "@/shared/ui/switch"
 
 function displayName(user: AuthUser): string {
+  if (user.username) return user.username
   if (user.siteName) return user.siteName
   return user.role === "super_admin" ? "Super admin" : "Usuario"
 }
@@ -24,7 +25,7 @@ function displayName(user: AuthUser): string {
 function initials(user: AuthUser): string {
   const skip = new Set(["de", "del", "la", "el", "los", "las", "y", "the"])
   const fromName = displayName(user)
-    .split(/\s+/)
+    .split(/[\s._-]+/)
     .filter((word) => word.length > 1 && !skip.has(word.toLowerCase()))
   if (fromName.length >= 2) {
     return `${fromName[0][0] ?? ""}${fromName[1][0] ?? ""}`.toUpperCase()

@@ -5,6 +5,7 @@ import { setAccessToken } from "@/infrastructure/auth/token-storage"
 export interface UserApi {
   id: number
   email: string
+  username: string
   role: "super_admin" | "site_user"
   site_id: number | null
   site_name: string | null
@@ -16,6 +17,7 @@ export function mapUser(item: UserApi): AuthUser {
   return {
     id: item.id,
     email: item.email,
+    username: item.username || item.email.split("@")[0] || "",
     role: item.role,
     siteId: item.site_id,
     siteName: item.site_name,
@@ -24,10 +26,11 @@ export function mapUser(item: UserApi): AuthUser {
   }
 }
 
-export async function loginWithCredentials(email: string, password: string): Promise<AuthUser> {
+export async function loginWithCredentials(identifier: string, password: string): Promise<AuthUser> {
+  const login = identifier.trim()
   const data = await apiClient<{ access_token: string; user: UserApi }>("/api/auth/login", {
     method: "POST",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ login, email: login, password }),
     skipAuth: true,
   })
   setAccessToken(data.access_token)

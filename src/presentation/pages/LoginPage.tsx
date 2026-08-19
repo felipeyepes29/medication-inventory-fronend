@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react"
-import { ArrowLeft, LogIn, Mail } from "lucide-react"
+import { ArrowLeft, LogIn, User } from "lucide-react"
 import { Link, Navigate, useLocation } from "react-router-dom"
 import { SiteFooter } from "@/presentation/components/SiteFooter"
 import { ThemeToggle } from "@/presentation/components/ThemeToggle"
@@ -13,7 +13,7 @@ export function LoginPage() {
   const { user, login } = useAuth()
   const location = useLocation()
   const from = (location.state as { from?: string } | null)?.from ?? "/app"
-  const [email, setEmail] = useState("")
+  const [identifier, setIdentifier] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -27,7 +27,7 @@ export function LoginPage() {
     setSubmitting(true)
     setError(null)
     try {
-      await login(email, password)
+      await login(identifier, password)
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo iniciar sesión")
     } finally {
@@ -46,23 +46,23 @@ export function LoginPage() {
             <div className="space-y-1">
               <h1 className="text-xl font-semibold">Ingreso al inventario</h1>
               <p className="text-sm text-muted-foreground">
-                Usa el correo y la contraseña de tu usuario.
+                Usa tu usuario o correo, y la contraseña.
               </p>
             </div>
             <ThemeToggle />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="login-email">Correo</Label>
+            <Label htmlFor="login-identifier">Usuario o correo</Label>
             <Input
-              id="login-email"
-              icon={Mail}
-              type="email"
+              id="login-identifier"
+              icon={User}
+              type="text"
               autoFocus
               autoComplete="username"
-              placeholder="correo@ejemplo.com"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              placeholder="usuario o correo@ejemplo.com"
+              value={identifier}
+              onChange={(event) => setIdentifier(event.target.value)}
               required
             />
           </div>

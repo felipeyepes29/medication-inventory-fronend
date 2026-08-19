@@ -9,6 +9,7 @@ export async function listUsers(): Promise<ManagedUser[]> {
 
 export async function createUser(input: {
   email: string
+  username: string
   password: string
   role: UserRole
   siteId: number | null
@@ -19,6 +20,7 @@ export async function createUser(input: {
       method: "POST",
       body: JSON.stringify({
         email: input.email,
+        username: input.username,
         password: input.password,
         role: input.role,
         site_id: input.siteId,
@@ -32,6 +34,7 @@ export async function updateUser(
   id: number,
   input: {
     email: string
+    username: string
     password?: string
     role: UserRole
     siteId: number | null
@@ -43,6 +46,7 @@ export async function updateUser(
       method: "PUT",
       body: JSON.stringify({
         email: input.email,
+        username: input.username,
         password: input.password || null,
         role: input.role,
         site_id: input.siteId,
@@ -55,6 +59,7 @@ export async function updateUser(
 function toUpdatePayload(user: ManagedUser, patch?: { isActive?: boolean; password?: string }) {
   return {
     email: user.email,
+    username: user.username,
     role: user.role,
     siteId: user.siteId,
     isActive: patch?.isActive ?? user.isActive,
